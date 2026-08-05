@@ -154,6 +154,12 @@
         avatarEl.textContent = (p.display_name || p.username).charAt(0).toUpperCase();
       }
 
+      if (p.theme && p.theme !== 'default') {
+        document.getElementById('profile-banner').classList.add(`theme-${p.theme}`);
+        avatarEl.classList.add(`theme-${p.theme}`);
+        document.getElementById('submit-btn').classList.add(`theme-${p.theme}`);
+      }
+
       document.getElementById('profile-name').innerHTML =
         (p.display_name || p.username) + (p.is_premium ? '<span class="premium-badge">✨ Premium</span>' : '');
       document.getElementById('profile-username').textContent = `@${p.username}`;
