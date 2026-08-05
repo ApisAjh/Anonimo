@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kirim Pesan Anonim — Anonimo</title>
+  <meta id="meta-desc" name="description" content="Kirim pesan anonim tanpa perlu login." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="brand">Anon<span>imo</span></a>
+      <div class="nav-links"><a href="/register.html" class="btn btn-primary">Buat Profilmu</a></div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+      <div id="profile-skeleton" style="max-width:520px;margin:40px auto;">
+        <div class="skeleton" style="height:180px;border-radius:20px;"></div>
+        <div class="skeleton" style="height:100px;width:100px;border-radius:50%;margin:-50px auto 12px;"></div>
+        <div class="skeleton" style="height:20px;width:160px;margin:0 auto 8px;"></div>
+        <div class="skeleton" style="height:14px;width:100px;margin:0 auto;"></div>
+      </div>
+
+      <div id="profile-content" style="display:none;">
+        <div class="profile-header">
+          <div class="profile-banner" id="profile-banner"></div>
+          <div class="profile-avatar" id="profile-avatar"></div>
+          <div class="profile-name" id="profile-name"></div>
+          <div class="profile-username" id="profile-username"></div>
+          <div class="profile-bio" id="profile-bio"></div>
+        </div>
+
+        <form class="glass send-form" id="send-form">
+          <div class="form-group">
+            <label for="senderName">Nama (opsional)</label>
+            <input type="text" id="senderName" placeholder="Anonim" maxlength="30" />
+          </div>
+          <div class="form-group">
+            <label for="content">Pesanmu</label>
+            <textarea id="content" placeholder="Tulis sesuatu yang jujur..." maxlength="500" required></textarea>
+            <div class="char-count"><span id="char-count">0</span>/500</div>
+            <div class="emoji-row" id="emoji-row"></div>
+          </div>
+          <div class="form-group">
+            <label class="file-input-label" for="image">
+              📎 <span id="file-label">Lampirkan gambar (opsional)</span>
+            </label>
+            <input type="file" id="image" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;" />
+          </div>
+          <div class="form-group captcha-group">
+            <label for="captcha-answer">Verifikasi: <strong id="captcha-question">Memuat...</strong></label>
+            <div class="captcha-row">
+              <input type="text" id="captcha-answer" inputmode="numeric" placeholder="Jawaban" maxlength="6" required autocomplete="off" />
+              <button type="button" class="btn btn-ghost captcha-refresh" id="captcha-refresh" title="Muat captcha baru">↻</button>
+            </div>
+            <input type="hidden" id="captcha-token" value="" />
+          </div>
+          <div class="form-error" id="form-error"></div>
+          <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Kirim Pesan Anonim</button>
+        </form>
+      </div>
+
+      <div id="profile-not-found" class="glass" style="display:none; max-width:420px; margin:60px auto; padding:40px; text-align:center;">
+        <h2>Pengguna tidak ditemukan</h2>
+        <p style="color:var(--text-secondary); margin-top:10px;">Cek kembali link yang kamu buka, atau buat profilmu sendiri.</p>
+        <a href="/register.html" class="btn btn-primary" style="margin-top:20px;">Buat Profil</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>Copyright &copy; 2026 ApisAjh All rights reserved.</footer>
+
+  <script src="/js/app.js"></script>
+  <script>
+    const EMOJIS = ['😀', '😂', '😍', '😭', '🔥', '💯', '🎉', '👀', '💜', '😅'];
+    const username = window.location.pathname.split('/u/')[1]?.split('/')[0];
+
+    const emojiRow = document.getElementById('emoji-row');
+    const contentEl = document.getElementById('content');
+    EMOJIS.forEach((emoji) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'emoji-btn';
+      btn.textContent = emoji;
+      btn.addEventListener('click', () => {
+        if (contentEl.value.length < 500) {
+          contentEl.value += emoji;
+          contentEl.dispatchEvent(new Event('input'));
+        }
+      });
+      emojiRow.appendChild(btn);
+    });
+
+    contentEl.addEventListener('input', () => {
+      document.getElementById('char-count').textContent = contentEl.value.length;
+    });
+
+    document.getElementById('image').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      document.getElementById('file-label').textContent = file ? file.name : 'Lampirkan gambar (opsional)';
+    });
+
+    async function loadCaptcha() {
+      const qEl = document.getElementById('captcha-question');
+      const tokenEl = document.getElementById('captcha-token');
+      const answerEl = document.getElementById('captcha-answer');
+      qEl.textContent = 'Memuat...';
+      tokenEl.value = '';
+      answerEl.value = '';
+      try {
+        const res = await fetch('/api/captcha');
+        const data = await res.json();
+        if (data.success && data.data) {
+          qEl.textContent = data.data.question;
+          tokenEl.value = data.data.captchaToken;
+        } else {
+          qEl.textContent = 'Gagal memuat captcha';
+        }
+      } catch {
+        qEl.textContent = 'Gagal memuat captcha';
+      }
+    }
+
+    document.getElementById('captcha-refresh').addEventListener('click', loadCaptcha);
+
+    async function loadProfile() {
+      if (!username) {
+        document.getElementById('profile-skeleton').style.display = 'none';
+        document.getElementById('profile-not-found').style.display = 'block';
+        return;
+      }
+
+      const { ok, data } = await apiFetch(`/profile/${encodeURIComponent(username)}`);
+      document.getElementById('profile-skeleton').style.display = 'none';
+
+      if (!ok || !data.data) {
+        document.getElementById('profile-not-found').style.display = 'block';
+        return;
+      }
+
+      const p = data.data;
+      document.title = `Kirim pesan ke @${p.username} — Anonimo`;
+      document.getElementById('meta-desc').setAttribute('content', `Kirim pesan anonim ke @${p.username} di Anonimo.`);
+
+      if (p.banner_url) document.getElementById('profile-banner').style.backgroundImage = `url(${p.banner_url})`;
+      const avatarEl = document.getElementById('profile-avatar');
+      if (p.avatar_url) {
+        avatarEl.innerHTML = `<img src="${p.avatar_url}" alt="Avatar ${p.username}" />`;
+      } else {
+        avatarEl.textContent = (p.display_name || p.username).charAt(0).toUpperCase();
+      }
+
+      document.getElementById('profile-name').innerHTML =
+        (p.display_name || p.username) + (p.is_premium ? '<span class="premium-badge">✨ Premium</span>' : '');
+      document.getElementById('profile-username').textContent = `@${p.username}`;
+      document.getElementById('profile-bio').textContent = p.bio || '';
+
+      document.getElementById('profile-content').style.display = 'block';
+    }
+
+    document.getElementById('send-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorEl = document.getElementById('form-error');
+      const submitBtn = document.getElementById('submit-btn');
+      errorEl.textContent = '';
+
+      const content = contentEl.value.trim();
+      if (!content) {
+        errorEl.textContent = 'Tulis pesan terlebih dahulu.';
+        return;
+      }
+
+      const captchaToken = document.getElementById('captcha-token').value;
+      const captchaAnswer = document.getElementById('captcha-answer').value.trim();
+      if (!captchaToken || !captchaAnswer) {
+        errorEl.textContent = 'Selesaikan captcha terlebih dahulu.';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('senderName', document.getElementById('senderName').value.trim() || 'Anonim');
+      formData.append('content', content);
+      formData.append('captchaToken', captchaToken);
+      formData.append('captchaAnswer', captchaAnswer);
+      const imageFile = document.getElementById('image').files[0];
+      if (imageFile) formData.append('image', imageFile);
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Mengirim...';
+
+      try {
+        const res = await fetch(`/api/messages/${encodeURIComponent(username)}`, { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorEl.textContent = data.error || 'Gagal mengirim pesan.';
+          await loadCaptcha();
+        } else {
+          showToast('Pesan berhasil dikirim! 🎉', 'success');
+          document.getElementById('send-form').reset();
+          document.getElementById('char-count').textContent = '0';
+          document.getElementById('file-label').textContent = 'Lampirkan gambar (opsional)';
+          await loadCaptcha();
+        }
+      } catch {
+        errorEl.textContent = 'Terjadi kesalahan jaringan.';
+        await loadCaptcha();
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Kirim Pesan Anonim';
+    });
+
+    loadProfile();
+    loadCaptcha();
+  </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Premium — Anonimo</title>
+  <meta name="description" content="Upgrade ke Anonimo Premium: tema eksklusif, badge, dan statistik mendalam." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/premium.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="brand">Anon<span>imo</span></a>
+      <div class="nav-links">
+        <a href="/dashboard.html" class="btn btn-ghost">Dashboard</a>
+        <a href="/settings.html" class="btn btn-ghost">Pengaturan</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container premium-container">
+      <!-- Status -->
+      <section class="glass premium-status-card" id="status-card">
+        <div class="status-row">
+          <div>
+            <h1 class="premium-title">Anonimo Premium</h1>
+            <p class="premium-sub" id="status-text">Memuat status...</p>
+          </div>
+          <div class="status-badge" id="status-badge">—</div>
+        </div>
+        <div class="status-meta" id="status-meta" style="display:none;"></div>
+        <div class="status-actions" id="status-actions" style="display:none;">
+          <button class="btn btn-ghost" id="renew-btn">Perpanjang</button>
+          <button class="btn-danger" id="cancel-btn">Batalkan Premium</button>
+        </div>
+      </section>
+
+      <!-- Benefits -->
+      <section class="benefits-section">
+        <h2 class="section-title" style="text-align:left; margin-bottom:8px;">Benefit Premium</h2>
+        <p class="section-sub" style="text-align:left; margin:0 0 24px;">Semua yang kamu dapatkan setelah upgrade.</p>
+        <div class="grid-features">
+          <div class="glass feature-card">
+            <div class="feature-icon">✨</div>
+            <h3>Badge Premium</h3>
+            <p>Tampilkan badge ✨ Premium di profil publikmu agar menonjol.</p>
+          </div>
+          <div class="glass feature-card">
+            <div class="feature-icon">🎨</div>
+            <h3>Tema Eksklusif</h3>
+            <p>Buka tema Midnight, Aurora, dan Gold yang hanya untuk member Premium.</p>
+          </div>
+          <div class="glass feature-card">
+            <div class="feature-icon">🖼️</div>
+            <h3>Banner Premium</h3>
+            <p>Kustomisasi banner profil tanpa batas kreatifitas visual.</p>
+          </div>
+          <div class="glass feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Statistik Mendalam</h3>
+            <p>Pantau performa profil dan inbox dengan insight yang lebih lengkap.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Plans -->
+      <section class="plans-section">
+        <h2 class="section-title" style="text-align:left; margin-bottom:8px;">Pilih Paket</h2>
+        <p class="section-sub" style="text-align:left; margin:0 0 24px;">Simulasi upgrade — tanpa payment gateway. Langsung aktif setelah dipilih.</p>
+        <div class="plans-grid" id="plans-grid">
+          <div class="glass plan-skeleton"></div>
+          <div class="glass plan-skeleton"></div>
+          <div class="glass plan-skeleton"></div>
+          <div class="glass plan-skeleton"></div>
+        </div>
+      </section>
+
+      <!-- History -->
+      <section class="glass settings-card history-section" id="history-section" style="display:none;">
+        <h2>Riwayat Langganan</h2>
+        <div id="history-list" class="history-list"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>Copyright &copy; 2026 ApisAjh All rights reserved.</footer>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/premium.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pengaturan — Anonimo</title>
+  <meta name="robots" content="noindex" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/settings.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="brand">Anon<span>imo</span></a>
+      <div class="nav-links">
+        <a href="/premium.html" class="btn btn-ghost">✨ Premium</a>
+        <a href="/dashboard.html" class="btn btn-ghost">← Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container settings-container">
+      <h1 class="settings-title">Pengaturan</h1>
+
+      <!-- Profil -->
+      <section class="glass settings-card">
+        <h2>Profil</h2>
+        <div class="media-row">
+          <div class="media-upload">
+            <div class="preview-avatar" id="preview-avatar"></div>
+            <label class="btn btn-ghost btn-sm" for="avatar-input">Ganti Avatar</label>
+            <input type="file" id="avatar-input" accept="image/png,image/jpeg,image/webp" hidden />
+          </div>
+          <div class="media-upload media-upload-banner">
+            <div class="preview-banner" id="preview-banner"></div>
+            <label class="btn btn-ghost btn-sm" for="banner-input">Ganti Banner</label>
+            <input type="file" id="banner-input" accept="image/png,image/jpeg,image/webp" hidden />
+          </div>
+        </div>
+
+        <form id="profile-form">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username-display" disabled />
+          </div>
+          <div class="form-group">
+            <label for="display-name">Nama Tampilan</label>
+            <input type="text" id="display-name" maxlength="50" />
+          </div>
+          <div class="form-group">
+            <label for="bio">Bio</label>
+            <textarea id="bio" maxlength="200" placeholder="Ceritakan sedikit tentang dirimu..."></textarea>
+          </div>
+          <div class="form-error" id="profile-error"></div>
+          <button type="submit" class="btn btn-primary">Simpan Profil</button>
+        </form>
+      </section>
+
+      <!-- Tema -->
+      <section class="glass settings-card">
+        <h2>Tema</h2>
+        <p class="settings-sub">Pilih tampilan profil publikmu.</p>
+        <div class="theme-grid" id="theme-grid"></div>
+      </section>
+
+      <!-- Privasi -->
+      <section class="glass settings-card">
+        <h2>Privasi</h2>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-title">Profil Privat</div>
+            <div class="toggle-desc">Hanya orang dengan link langsung yang bisa melihat profilmu.</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="toggle-private" /><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-title">Izinkan Lampiran Gambar</div>
+            <div class="toggle-desc">Pengirim pesan dapat melampirkan gambar.</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="toggle-allow-images" /><span class="slider"></span></label>
+        </div>
+      </section>
+
+      <!-- Notifikasi -->
+      <section class="glass settings-card">
+        <h2>Notifikasi</h2>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-title">Notifikasi Email</div>
+            <div class="toggle-desc">Dapat email saat menerima pesan baru.</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="toggle-email-notif" /><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-title">Notifikasi Push</div>
+            <div class="toggle-desc">Dapat notifikasi push di perangkatmu.</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="toggle-push-notif" /><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-title">Tampilkan Jumlah Kunjungan</div>
+            <div class="toggle-desc">Tampilkan jumlah view di profil publikmu.</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="toggle-show-views" /><span class="slider"></span></label>
+        </div>
+      </section>
+
+      <!-- Keamanan -->
+      <section class="glass settings-card">
+        <h2>Keamanan</h2>
+        <form id="password-form">
+          <div class="form-group">
+            <label for="new-password">Password Baru</label>
+            <input type="password" id="new-password" placeholder="Minimal 8 karakter" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label for="confirm-password">Konfirmasi Password Baru</label>
+            <input type="password" id="confirm-password" placeholder="Ulangi password baru" autocomplete="new-password" />
+          </div>
+          <div class="form-error" id="password-error"></div>
+          <button type="submit" class="btn btn-primary">Ganti Password</button>
+        </form>
+
+        <hr class="divider" />
+
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-title">Keluar dari Semua Perangkat</div>
+            <div class="toggle-desc">Akhiri semua sesi login aktif di perangkat lain.</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="logout-all-btn">Keluar Semua</button>
+        </div>
+      </section>
+
+      <!-- Danger zone -->
+      <section class="glass settings-card danger-zone">
+        <h2>Hapus Akun</h2>
+        <p class="settings-sub">Tindakan ini permanen. Semua pesan, profil, dan data akan dihapus tanpa bisa dikembalikan.</p>
+        <button class="btn btn-danger" id="delete-account-btn">Hapus Akun Saya</button>
+      </section>
+    </div>
+  </main>
+
+  <footer>Copyright &copy; 2026 ApisAjh All rights reserved.</footer>
+
+  <div class="modal-overlay" id="delete-modal-overlay">
+    <div class="glass modal">
+      <h3>Yakin hapus akun?</h3>
+      <p class="sub">Ketik <strong>HAPUS</strong> untuk mengonfirmasi. Tindakan ini tidak bisa dibatalkan.</p>
+      <input type="text" id="delete-confirm-input" class="form-group" placeholder="Ketik HAPUS" />
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="delete-cancel">Batal</button>
+        <button class="btn btn-danger" id="delete-confirm">Hapus Permanen</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/settings.js"></script>
+</body>
+</html>
