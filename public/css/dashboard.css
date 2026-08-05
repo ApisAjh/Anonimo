@@ -139,9 +139,11 @@
   border-radius: 999px;
   color: var(--text-secondary);
   cursor: pointer;
-  display: none;
+  display: inline-block;
 }
-@media (min-width: 640px) { .profile-link-pill { display: inline-block; } }
+@media (max-width: 600px) {
+  .profile-link-pill { font-size: 11px; padding: 8px 12px; }
+}
 
 /* ---------- Modal ---------- */
 .modal-overlay {
@@ -174,3 +176,4 @@
 }
 
 html{scroll-behavior:smooth;}body{overflow-x:hidden;}*{backface-visibility:hidden;-webkit-font-smoothing:antialiased;}
+  
