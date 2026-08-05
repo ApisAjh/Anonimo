@@ -345,6 +345,19 @@ footer {
   font-size: 34px; font-weight: 700;
   overflow: hidden;
 }
+/* ---------- Tema profil publik (harus sinkron dgn public/css/settings.css) ---------- */
+.profile-banner.theme-default, .profile-avatar.theme-default,
+.btn-primary.theme-default { background: linear-gradient(135deg, #6d28d9, #2563eb); }
+.profile-banner.theme-sunset, .profile-avatar.theme-sunset,
+.btn-primary.theme-sunset { background: linear-gradient(135deg, #f97316, #db2777); }
+.profile-banner.theme-ocean, .profile-avatar.theme-ocean,
+.btn-primary.theme-ocean { background: linear-gradient(135deg, #0891b2, #1d4ed8); }
+.profile-banner.theme-midnight, .profile-avatar.theme-midnight,
+.btn-primary.theme-midnight { background: linear-gradient(135deg, #1e293b, #0f172a); }
+.profile-banner.theme-aurora, .profile-avatar.theme-aurora,
+.btn-primary.theme-aurora { background: linear-gradient(135deg, #10b981, #6366f1); }
+.profile-banner.theme-gold, .profile-avatar.theme-gold,
+.btn-primary.theme-gold { background: linear-gradient(135deg, #f59e0b, #b45309); }
 .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .profile-name { font-size: 22px; font-weight: 800; }
 .profile-username { color: var(--text-secondary); font-size: 14px; margin-bottom: 8px; }
@@ -416,4 +429,4 @@ footer {
 }
 
 html{scroll-behavior:smooth;}body{overflow-x:hidden;}*{backface-visibility:hidden;-webkit-font-smoothing:antialiased;}
-  
+                          
