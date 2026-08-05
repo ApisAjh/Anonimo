@@ -23,10 +23,12 @@ async function loadProfilePill() {
   const { ok, data } = await apiFetch('/auth/me');
   if (ok && data.profile) {
     const pill = document.getElementById('profile-link-pill');
-    pill.textContent = `🔗 anonimo.app/u/${data.profile.username}`;
+    const host = window.location.host;
+    const link = `${window.location.origin}/u/${data.profile.username}`;
+    pill.textContent = `🔗 ${host}/u/${data.profile.username}`;
     pill.title = 'Klik untuk menyalin link profilmu';
     pill.addEventListener('click', () => {
-      navigator.clipboard.writeText(`${window.location.origin}/u/${data.profile.username}`);
+      navigator.clipboard.writeText(link);
       showToast('Link profil disalin!', 'success');
     });
   }
