@@ -108,18 +108,28 @@ router.post('/forgot-password', authLimiter, async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Email tidak valid' });
     }
 
-    await supabasePublic.auth.resetPasswordForEmail(email, {
-      redirectTo: `${APP_URL}/reset-password`
-    });
+    // Redirect ke halaman reset; APP_URL harus cocok dengan URL yang diizinkan di Supabase Auth
+    const redirectTo = `${APP_URL.replace(/\/$/, '')}/reset-password`;
 
-    // Selalu balas sukses (tidak membocorkan apakah email terdaftar)
-    res.json({ success: true, message: 'Jika email terdaftar, tautan reset password telah dikirim.' });
+    const { error } = await supabasePublic.auth.resetPasswordForEmail(email, { redirectTo });
+
+    // Jangan bocorkan apakah email terdaftar — selalu balas sukses
+    // (error Supabase tetap dilog di server, client tetap dapat pesan generik)
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.warn('[forgot-password]', error.message);
+    }
+
+    res.json({
+      success: true,
+      message: 'Jika email terdaftar, tautan reset password telah dikirim. Periksa kotak masuk atau folder spam.'
+    });
   } catch (err) {
     next(err);
   }
 });
 
-// POST /api/auth/reset-password — dipanggil setelah user klik link reset (sudah punya session sementara)
+// POST /api/auth/reset-password — recovery session (dari email) ATAU user yang sudah login
 router.post('/reset-password', requireAuth, async (req, res, next) => {
   try {
     const { newPassword } = req.body || {};
@@ -127,7 +137,10 @@ router.post('/reset-password', requireAuth, async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Password baru minimal 8 karakter' });
     }
 
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(req.user.id, { password: newPassword });
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(req.user.id, {
+      password: newPassword
+    });
+
     if (error) {
       return res.status(400).json({ success: false, error: error.message });
     }
