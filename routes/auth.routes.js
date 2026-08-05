@@ -7,10 +7,56 @@ const { isValidUsername, isValidEmail, isValidPassword } = require('../utils/val
 
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 
+/**
+ * Normalisasi email: trim + lowercase.
+ * Supabase menyimpan email dalam bentuk lowercase; inkonsistensi
+ * spasi/kapital di input sering membuat login gagal.
+ */
+function normalizeEmail(email) {
+  return typeof email === 'string' ? email.trim().toLowerCase() : '';
+}
+
+/**
+ * Petakan error Supabase Auth ke pesan yang jelas (bukan selalu "password salah").
+ */
+function mapAuthError(error) {
+  const msg = (error?.message || '').toLowerCase();
+  const status = error?.status || error?.statusCode;
+
+  if (msg.includes('email not confirmed') || msg.includes('not confirmed')) {
+    return {
+      status: 403,
+      error: 'Email belum diverifikasi. Cek kotak masuk (atau spam) dan klik tautan konfirmasi.'
+    };
+  }
+  if (msg.includes('invalid login credentials') || msg.includes('invalid_credentials')) {
+    return { status: 401, error: 'Email atau password salah' };
+  }
+  if (msg.includes('user banned') || msg.includes('banned')) {
+    return { status: 403, error: 'Akun ini telah dinonaktifkan' };
+  }
+  if (msg.includes('too many') || status === 429) {
+    return { status: 429, error: 'Terlalu banyak percobaan. Coba lagi beberapa menit lagi.' };
+  }
+
+  // Fallback: jangan sembunyikan total — log di server, pesan generik ke client
+  return {
+    status: 401,
+    error: error?.message || 'Gagal masuk. Periksa email dan password.'
+  };
+}
+
 // POST /api/auth/register
 router.post('/register', authLimiter, async (req, res, next) => {
   try {
-    const { email, password, username, displayName } = req.body || {};
+    const email = normalizeEmail(req.body?.email);
+    const password = req.body?.password;
+    const username = typeof req.body?.username === 'string'
+      ? req.body.username.trim().toLowerCase()
+      : '';
+    const displayName = typeof req.body?.displayName === 'string'
+      ? req.body.displayName.trim()
+      : '';
 
     if (!isValidEmail(email)) {
       return res.status(400).json({ success: false, error: 'Email tidak valid' });
@@ -37,18 +83,32 @@ router.post('/register', authLimiter, async (req, res, next) => {
       password,
       options: {
         data: { username, display_name: displayName || username },
-        emailRedirectTo: `${APP_URL}/login`
+        emailRedirectTo: `${APP_URL.replace(/\/$/, '')}/login`
       }
     });
 
     if (error) {
+      // eslint-disable-next-line no-console
+      console.warn('[auth/register]', error.message);
       return res.status(400).json({ success: false, error: error.message });
     }
 
+    // Kasus edge: user object palsu (obfuscated) saat email sudah terdaftar + confirm aktif
+    if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      return res.status(409).json({
+        success: false,
+        error: 'Email sudah terdaftar. Silakan masuk atau reset password.'
+      });
+    }
+
+    const needsConfirm = !data.session;
     res.status(201).json({
       success: true,
-      message: 'Registrasi berhasil. Silakan cek email untuk verifikasi.',
-      user: { id: data.user?.id, email: data.user?.email }
+      message: needsConfirm
+        ? 'Registrasi berhasil. Silakan cek email untuk verifikasi.'
+        : 'Registrasi berhasil. Kamu bisa langsung masuk.',
+      user: { id: data.user?.id, email: data.user?.email },
+      emailConfirmationRequired: needsConfirm
     });
   } catch (err) {
     next(err);
@@ -58,16 +118,37 @@ router.post('/register', authLimiter, async (req, res, next) => {
 // POST /api/auth/login
 router.post('/login', authLimiter, async (req, res, next) => {
   try {
-    const { email, password } = req.body || {};
+    const email = normalizeEmail(req.body?.email);
+    const password = req.body?.password;
 
     if (!isValidEmail(email) || !password) {
       return res.status(400).json({ success: false, error: 'Email dan password wajib diisi' });
     }
 
-    const { data, error } = await supabasePublic.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabasePublic.auth.signInWithPassword({
+      email,
+      password
+    });
 
     if (error) {
-      return res.status(401).json({ success: false, error: 'Email atau password salah' });
+      // eslint-disable-next-line no-console
+      console.warn('[auth/login]', {
+        email,
+        message: error.message,
+        status: error.status || error.statusCode,
+        code: error.code
+      });
+      const mapped = mapAuthError(error);
+      return res.status(mapped.status).json({ success: false, error: mapped.error });
+    }
+
+    if (!data?.session || !data?.user) {
+      // eslint-disable-next-line no-console
+      console.warn('[auth/login] no session returned', { email, hasUser: !!data?.user });
+      return res.status(403).json({
+        success: false,
+        error: 'Email belum diverifikasi atau sesi tidak dapat dibuat. Cek email konfirmasi.'
+      });
     }
 
     res.json({
@@ -103,7 +184,7 @@ router.post('/logout-all', requireAuth, async (req, res, next) => {
 // POST /api/auth/forgot-password
 router.post('/forgot-password', authLimiter, async (req, res, next) => {
   try {
-    const { email } = req.body || {};
+    const email = normalizeEmail(req.body?.email);
     if (!isValidEmail(email)) {
       return res.status(400).json({ success: false, error: 'Email tidak valid' });
     }
