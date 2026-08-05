@@ -52,28 +52,45 @@
       e.preventDefault();
       errorEl.textContent = '';
 
-      const email = document.getElementById('email').value.trim();
+      // Normalisasi email + buang sesi lama agar Authorization Bearer usang
+      // tidak ikut terkirim dan mengganggu alur login
+      const email = document.getElementById('email').value.trim().toLowerCase();
       const password = document.getElementById('password').value;
+      clearSession();
+
+      if (!email || !password) {
+        errorEl.textContent = 'Email dan password wajib diisi.';
+        return;
+      }
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Memproses...';
 
-      const { ok, data } = await apiFetch('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password })
-      });
+      try {
+        const { ok, data } = await apiFetch('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        });
 
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Masuk';
+        if (!ok) {
+          errorEl.textContent = data.error || 'Login gagal, coba lagi.';
+          return;
+        }
 
-      if (!ok) {
-        errorEl.textContent = data.error || 'Login gagal, coba lagi.';
-        return;
+        if (!data.session?.access_token) {
+          errorEl.textContent = 'Sesi tidak diterima dari server. Coba lagi atau verifikasi email dulu.';
+          return;
+        }
+
+        setSession(data.session);
+        showToast('Berhasil masuk!', 'success');
+        setTimeout(() => { window.location.href = '/dashboard.html'; }, 800);
+      } catch (err) {
+        errorEl.textContent = 'Gagal terhubung ke server. Coba lagi.';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Masuk';
       }
-
-      setSession(data.session);
-      showToast('Berhasil masuk!', 'success');
-      setTimeout(() => { window.location.href = '/dashboard.html'; }, 800);
     });
   </script>
 </body>
