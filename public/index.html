@@ -135,6 +135,9 @@
 
   <script src="/js/app.js"></script>
   <script>
+    // User sudah login → langsung ke dashboard (tanpa klik Masuk lagi)
+    redirectIfLoggedIn();
+
     document.getElementById('quick-visit-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const username = document.getElementById('quick-username').value.trim().toLowerCase();
