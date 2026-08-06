@@ -2,11 +2,12 @@
 // premium.js — halaman upgrade & kelola Premium
 // ============================================================
 
-const session = requireLoginOrRedirect();
+let session = null;
 
 let currentStatus = null;
 
 async function init() {
+  session = await requireLoginOrRedirect();
   if (!session) return;
   await Promise.all([loadStatus(), loadPlans()]);
 }

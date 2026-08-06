@@ -2,7 +2,7 @@
 // settings.js — logika halaman pengaturan
 // ============================================================
 
-const session = requireLoginOrRedirect();
+let session = null;
 
 const THEMES = [
   { id: 'default', label: 'Default', premium: false },
@@ -16,6 +16,7 @@ const THEMES = [
 let currentProfile = null;
 
 async function init() {
+  session = await requireLoginOrRedirect();
   if (!session) return;
   await loadProfile();
   await loadSettings();
@@ -126,7 +127,7 @@ document.getElementById('avatar-input').addEventListener('change', async (e) => 
 
   const res = await fetch('/api/profile/avatar', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${session.access_token}` },
+    headers: { Authorization: `Bearer ${(getSession() || session).access_token}` },
     body: formData
   });
   const data = await res.json();
@@ -149,7 +150,7 @@ document.getElementById('banner-input').addEventListener('change', async (e) => 
 
   const res = await fetch('/api/profile/banner', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${session.access_token}` },
+    headers: { Authorization: `Bearer ${(getSession() || session).access_token}` },
     body: formData
   });
   const data = await res.json();

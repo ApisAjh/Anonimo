@@ -2,7 +2,7 @@
 // dashboard.js — logika halaman dashboard/inbox
 // ============================================================
 
-const session = requireLoginOrRedirect();
+let session = null;
 
 let state = {
   page: 1,
@@ -14,6 +14,7 @@ let searchDebounce = null;
 let reportTargetId = null;
 
 async function init() {
+  session = await requireLoginOrRedirect();
   if (!session) return;
   await Promise.all([loadProfilePill(), loadStats()]);
   await loadMessages();
