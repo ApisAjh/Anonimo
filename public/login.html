@@ -44,6 +44,9 @@
 
   <script src="/js/app.js"></script>
   <script>
+    // Sudah login? Langsung ke dashboard (atau ?next=)
+    redirectIfLoggedIn();
+
     const form = document.getElementById('login-form');
     const errorEl = document.getElementById('form-error');
     const submitBtn = document.getElementById('submit-btn');
@@ -84,7 +87,10 @@
 
         setSession(data.session);
         showToast('Berhasil masuk!', 'success');
-        setTimeout(() => { window.location.href = '/dashboard.html'; }, 800);
+        const params = new URLSearchParams(window.location.search);
+        const next = params.get('next');
+        const dest = next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard.html';
+        setTimeout(() => { window.location.href = dest; }, 800);
       } catch (err) {
         errorEl.textContent = 'Gagal terhubung ke server. Coba lagi.';
       } finally {
