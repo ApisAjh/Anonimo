@@ -67,8 +67,9 @@ function renderThemeGrid() {
     const selected = currentProfile.theme === theme.id;
 
     const el = document.createElement('div');
-    el.className = `theme-option theme-${theme.id} ${selected ? 'selected' : ''} ${locked ? 'locked' : ''}`;
+    el.className = `theme-option theme-${theme.id} ${selected ? 'selected' : ''} ${locked ? 'locked' : ''} ${theme.premium ? 'premium-theme' : ''}`;
     el.textContent = theme.label;
+    if (theme.premium) el.innerHTML += '<span class="theme-premium-badge">✨ Premium</span>';
     if (locked) el.innerHTML += '<span class="theme-lock-icon">🔒</span>';
 
     el.addEventListener('click', async () => {
