@@ -38,6 +38,7 @@
 }
 .theme-option {
   position: relative;
+  overflow: hidden;
   height: 70px;
   border-radius: var(--radius-sm);
   border: 2px solid transparent;
@@ -55,6 +56,40 @@
 .theme-option.locked { opacity: 0.55; cursor: not-allowed; }
 .theme-option.locked:hover { transform: none; }
 .theme-lock-icon { position: absolute; top: 6px; right: 8px; font-size: 12px; }
+
+/* ---------- Tema Premium: shimmer + badge, biar kelihatan beda dari tema gratis ---------- */
+.theme-option.premium-theme {
+  background-size: 220% 220%;
+  animation: theme-shimmer 6s ease infinite;
+  box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.35) inset;
+}
+.theme-option.premium-theme.selected { border-color: #fbbf24; }
+.theme-option.premium-theme::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.4) 50%, transparent 58%);
+  background-size: 220% 100%;
+  animation: theme-sweep 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+.theme-premium-badge {
+  position: absolute; top: 6px; left: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(251, 191, 36, 0.6);
+  color: #fde68a;
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+@keyframes theme-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes theme-sweep {
+  0% { background-position: -180% 0; }
+  100% { background-position: 180% 0; }
+}
 
 .theme-default { background: linear-gradient(135deg, #6d28d9, #2563eb); }
 .theme-sunset { background: linear-gradient(135deg, #f97316, #db2777); }
