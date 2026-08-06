@@ -146,12 +146,26 @@
       document.title = `Kirim pesan ke @${p.username} — Anonimo`;
       document.getElementById('meta-desc').setAttribute('content', `Kirim pesan anonim ke @${p.username} di Anonimo.`);
 
-      if (p.banner_url) document.getElementById('profile-banner').style.backgroundImage = `url(${p.banner_url})`;
+      const initial = (p.display_name || p.username).charAt(0).toUpperCase();
+      const bannerEl = document.getElementById('profile-banner');
+
+      if (p.banner_url) {
+        const bannerImg = new Image();
+        bannerImg.onload = () => { bannerEl.style.backgroundImage = `url(${p.banner_url})`; };
+        bannerImg.src = p.banner_url; // kalau gagal load, banner tetap pakai gradient default (tidak diubah)
+      }
+
       const avatarEl = document.getElementById('profile-avatar');
+      avatarEl.textContent = initial; // tampilkan huruf inisial dulu sebagai fallback
       if (p.avatar_url) {
-        avatarEl.innerHTML = `<img src="${p.avatar_url}" alt="Avatar ${p.username}" />`;
-      } else {
-        avatarEl.textContent = (p.display_name || p.username).charAt(0).toUpperCase();
+        const avatarImg = new Image();
+        avatarImg.onload = () => {
+          avatarEl.innerHTML = '';
+          avatarImg.alt = `Avatar ${p.username}`;
+          avatarEl.appendChild(avatarImg);
+        };
+        avatarImg.onerror = () => { avatarEl.textContent = initial; }; // gagal load -> tetap huruf inisial
+        avatarImg.src = p.avatar_url;
       }
 
       if (p.theme && p.theme !== 'default') {
