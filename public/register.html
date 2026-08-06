@@ -7,6 +7,26 @@
   <meta name="robots" content="noindex" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/style.css" />
+  <!-- Redirect instan ke dashboard jika sudah login (sebelum paint) -->
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem('anonimo_session');
+        if (!raw) return;
+        var s = JSON.parse(raw);
+        if (s && s.access_token && s.refresh_token) {
+          // Sembunyikan body agar tidak flash homepage
+          document.documentElement.style.visibility = 'hidden';
+          var params = new URLSearchParams(location.search);
+          var next = params.get('next');
+          var dest = (next && next.charAt(0) === '/' && next.indexOf('//') !== 0)
+            ? next
+            : '/dashboard.html';
+          location.replace(dest);
+        }
+      } catch (e) { /* abaikan */ }
+    })();
+  </script>
 </head>
 <body>
   <nav class="navbar">
