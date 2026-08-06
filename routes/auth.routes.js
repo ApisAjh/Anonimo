@@ -241,7 +241,9 @@ router.post('/refresh', async (req, res, next) => {
     }
 
     const { data, error } = await supabasePublic.auth.refreshSession({ refresh_token: refreshToken });
-    if (error) {
+    if (error || !data?.session?.access_token) {
+      // eslint-disable-next-line no-console
+      console.warn('[auth/refresh]', error?.message || 'no session');
       return res.status(401).json({ success: false, error: 'Sesi tidak dapat diperbarui, silakan login ulang' });
     }
 
