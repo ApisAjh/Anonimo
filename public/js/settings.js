@@ -70,18 +70,25 @@ function applyMediaPreviews() {
     avatarEl.textContent = (currentProfile.display_name || currentProfile.username || '?').charAt(0).toUpperCase();
   }
 
-  // Banner: pakai gambar jika ada; jika gagal load (404) → gradient tema
+  // Banner: foto sebagai <img> agar tidak gepeng (object-fit: cover)
   bannerEl.style.backgroundImage = '';
+  const oldPhoto = bannerEl.querySelector('.banner-photo');
+  if (oldPhoto) oldPhoto.remove();
+  bannerEl.classList.remove('has-photo');
+
   if (currentProfile.banner_url) {
-    const testImg = new Image();
-    testImg.onload = () => {
-      bannerEl.style.backgroundImage = `url(${currentProfile.banner_url})`;
+    const img = document.createElement('img');
+    img.className = 'banner-photo';
+    img.alt = 'Banner';
+    img.src = currentProfile.banner_url;
+    img.onload = () => {
+      bannerEl.classList.add('has-photo');
     };
-    testImg.onerror = () => {
-      bannerEl.style.backgroundImage = '';
-      // URL rusak — biarkan gradient tema terlihat
+    img.onerror = () => {
+      img.remove();
+      bannerEl.classList.remove('has-photo');
     };
-    testImg.src = currentProfile.banner_url;
+    bannerEl.appendChild(img);
   }
 }
 
