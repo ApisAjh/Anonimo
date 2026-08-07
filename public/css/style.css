@@ -384,7 +384,7 @@ footer {
 /* ---------- Profile page ---------- */
 .profile-header {
   text-align: center;
-  padding: 36px 0 28px;
+  padding: 28px 0 8px;
 }
 
 .profile-banner {
@@ -490,11 +490,11 @@ footer {
 .profile-bio {
   color: var(--text-secondary);
   max-width: 380px;
-  margin: 0 auto;
+  margin: 0 auto 0;
   font-size: 14px;
   line-height: 1.55;
   text-align: center;
-  padding: 0 16px;
+  padding: 0 16px 4px;
 }
 .premium-badge {
   display: inline-flex; align-items: center; gap: 4px;
@@ -507,7 +507,7 @@ footer {
 .send-form {
   padding: 28px 24px 32px;
   max-width: 520px;
-  margin: 28px auto 48px;
+  margin: 12px auto 48px;
 }
 .emoji-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .emoji-btn {
