@@ -188,13 +188,21 @@ if (data.viewerBlocked) {
 }
 
       // ---- VIEWER NORMAL ----
-      contentEl.classList.remove('is-blocked-viewer');
-      formEl.style.display = '';
-      blockedEl.style.display = 'none';
-      userEl.style.display = '';
-      bioEl.style.display = '';
-      bannerEl.removeAttribute('style');
-      avatarEl.removeAttribute('style');
+contentEl.classList.remove('is-blocked-viewer');
+
+formEl.style.display = '';
+blockedEl.style.display = 'none';
+
+userEl.style.display = '';
+bioEl.style.display = '';
+
+bannerEl.removeAttribute('style');
+avatarEl.removeAttribute('style');
+
+bannerEl.innerHTML = '';
+avatarEl.innerHTML = '';
+
+bannerEl.classList.remove('has-photo');
 
       const initial = (p.display_name || p.username).charAt(0).toUpperCase();
       const themeId = p.theme || 'default';
