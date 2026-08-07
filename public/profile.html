@@ -140,7 +140,14 @@
         return;
       }
 
-      const { ok, data } = await apiFetch(`/profile/${encodeURIComponent(username)}`);
+      let ok, data;
+      try {
+        ({ ok, data } = await apiFetch(`/profile/${encodeURIComponent(username)}`));
+      } catch {
+        document.getElementById('profile-skeleton').style.display = 'none';
+        document.getElementById('profile-not-found').style.display = 'block';
+        return;
+      }
       document.getElementById('profile-skeleton').style.display = 'none';
 
       if (!ok || !data.data) {
@@ -290,6 +297,7 @@
       submitBtn.disabled = false;
       submitBtn.textContent = 'Kirim Pesan Anonim';
     });
+    }
 
     loadProfile();
     loadCaptcha();
