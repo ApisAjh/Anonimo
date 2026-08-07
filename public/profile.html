@@ -213,35 +213,56 @@ bannerEl.classList.remove('has-photo');
       avatarEl.classList.add(`theme-${themeId}`);
       document.getElementById('submit-btn').classList.add(`theme-${themeId}`);
 
-      if (p.banner_url) {
-        const probe = new Image();
-        probe.onload = () => {
-          if (!probe.naturalWidth || !probe.naturalHeight) return;
-          if (contentEl.classList.contains('is-blocked-viewer')) return;
-          const bannerImg = document.createElement('img');
-          bannerImg.className = 'banner-photo';
-          bannerImg.alt = 'Banner';
-          bannerImg.src = p.banner_url;
-          bannerEl.appendChild(bannerImg);
-          bannerEl.classList.add('has-photo');
-        };
-        probe.onerror = () => { bannerEl.classList.remove('has-photo'); };
-        probe.src = p.banner_url;
-      }
+      // ===== Banner =====
+bannerEl.classList.remove('has-photo');
 
-      avatarEl.textContent = initial;
-      if (p.avatar_url) {
-        const avatarImg = new Image();
-        avatarImg.onload = () => {
-          if (!avatarImg.naturalWidth) return;
-          if (contentEl.classList.contains('is-blocked-viewer')) return;
-          avatarEl.innerHTML = '';
-          avatarImg.alt = `Avatar ${p.username}`;
-          avatarEl.appendChild(avatarImg);
-        };
-        avatarImg.onerror = () => { avatarEl.textContent = initial; };
-        avatarImg.src = p.avatar_url;
-      }
+if (p.banner_url) {
+  const probe = new Image();
+
+  probe.onload = () => {
+    if (!probe.naturalWidth || !probe.naturalHeight) return;
+    if (contentEl.classList.contains('is-blocked-viewer')) return;
+
+    bannerEl.innerHTML = '';
+
+    const bannerImg = document.createElement('img');
+    bannerImg.className = 'banner-photo';
+    bannerImg.alt = 'Banner';
+    bannerImg.src = p.banner_url;
+
+    bannerEl.appendChild(bannerImg);
+    bannerEl.classList.add('has-photo');
+  };
+
+  probe.onerror = () => {
+    bannerEl.innerHTML = '';
+    bannerEl.classList.remove('has-photo');
+  };
+
+  probe.src = p.banner_url;
+}
+
+// ===== Avatar =====
+avatarEl.innerHTML = initial;
+
+if (p.avatar_url) {
+  const avatarImg = new Image();
+
+  avatarImg.onload = () => {
+    if (!avatarImg.naturalWidth) return;
+    if (contentEl.classList.contains('is-blocked-viewer')) return;
+
+    avatarEl.innerHTML = '';
+    avatarImg.alt = `Avatar ${p.username}`;
+    avatarEl.appendChild(avatarImg);
+  };
+
+  avatarImg.onerror = () => {
+    avatarEl.innerHTML = initial;
+  };
+
+  avatarImg.src = p.avatar_url;
+}
 
       nameEl.innerHTML =
         (p.display_name || p.username) + (p.is_premium ? '<span class="premium-badge">✨ Premium</span>' : '');
