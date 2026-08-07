@@ -16,58 +16,73 @@ let reportTargetId = null;
 async function init() {
   session = await requireLoginOrRedirect();
   if (!session) return;
-  await Promise.all([loadProfilePill(), loadStats()]);
-  await loadMessages();
+  // Satu request bootstrap: profile + stats + messages
+  await loadBootstrap();
 }
 
-async function loadProfilePill() {
-  const { ok, data } = await apiFetch('/auth/me');
-  if (ok && data.profile) {
-    const host = window.location.host;
-    const link = `${window.location.origin}/u/${data.profile.username}`;
-    document.getElementById('profile-link-text').textContent = `${host}/u/${data.profile.username}`;
-    document.getElementById('copy-link-btn').addEventListener('click', () => {
+function applyProfilePill(profile) {
+  if (!profile) return;
+  const host = window.location.host;
+  const link = `${window.location.origin}/u/${profile.username}`;
+  const textEl = document.getElementById('profile-link-text');
+  if (textEl) textEl.textContent = `${host}/u/${profile.username}`;
+  const btn = document.getElementById('copy-link-btn');
+  if (btn && !btn.dataset.bound) {
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', () => {
       navigator.clipboard.writeText(link);
       showToast('Link profil disalin!', 'success');
     });
   }
 }
 
-async function loadStats() {
-  const { ok, data } = await apiFetch('/messages/stats/summary');
-  if (ok) {
-    document.getElementById('stat-total').textContent = data.data.totalMessages;
-    document.getElementById('stat-views').textContent = data.data.totalViews;
-    document.getElementById('stat-unread').textContent = data.data.unreadMessages;
-    document.querySelectorAll('.skeleton-text').forEach((el) => el.classList.remove('skeleton-text'));
-  }
+function applyStats(stats) {
+  if (!stats) return;
+  document.getElementById('stat-total').textContent = stats.totalMessages ?? 0;
+  document.getElementById('stat-views').textContent = stats.totalViews ?? 0;
+  document.getElementById('stat-unread').textContent = stats.unreadMessages ?? 0;
+  document.querySelectorAll('.skeleton-text').forEach((el) => el.classList.remove('skeleton-text'));
 }
 
-async function loadMessages() {
+async function loadBootstrap() {
   const listEl = document.getElementById('message-list');
   const emptyEl = document.getElementById('empty-state');
-  listEl.innerHTML = `
-    <div class="glass message-skeleton"></div>
-    <div class="glass message-skeleton"></div>
-    <div class="glass message-skeleton"></div>
-  `;
-  emptyEl.style.display = 'none';
+  if (listEl) {
+    listEl.innerHTML = `
+      <div class="glass message-skeleton"></div>
+      <div class="glass message-skeleton"></div>
+      <div class="glass message-skeleton"></div>
+    `;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
 
   const params = new URLSearchParams({ page: state.page, limit: 10 });
   if (state.filter) params.set('filter', state.filter);
   if (state.search) params.set('search', state.search);
 
-  const { ok, data } = await apiFetch(`/messages?${params.toString()}`);
-
+  const { ok, data } = await apiFetch(`/dashboard/bootstrap?${params.toString()}`);
   if (!ok) {
-    listEl.innerHTML = '';
-    showToast(data.error || 'Gagal memuat pesan', 'error');
+    if (listEl) listEl.innerHTML = '';
+    showToast(data.error || 'Gagal memuat dashboard', 'error');
     return;
   }
 
-  state.totalPages = data.pagination.totalPages || 1;
-  renderMessages(data.data || []);
+  const payload = data.data || {};
+  applyProfilePill(payload.profile);
+  applyStats(payload.stats);
+  state.totalPages = payload.pagination?.totalPages || 1;
+  renderMessages(payload.messages || []);
   renderPagination();
+}
+
+async function loadMessages() {
+  // Filter/search/pagination memakai bootstrap yang sama (1 auth)
+  await loadBootstrap();
+}
+
+async function loadStats() {
+  const { ok, data } = await apiFetch('/messages/stats/summary');
+  if (ok) applyStats(data.data);
 }
 
 function renderMessages(messages) {
@@ -99,10 +114,6 @@ function renderMessages(messages) {
         <button class="msg-action-btn danger" data-action="delete">🗑️ Hapus</button>
       </div>
     `;
-
-    if (!msg.is_read) {
-      apiFetch(`/messages/${msg.id}`, { method: 'PATCH', body: JSON.stringify({ is_read: true }) });
-    }
 
     card.querySelector('[data-action="pin"]').addEventListener('click', () => toggleField(msg.id, 'is_pinned', !msg.is_pinned));
     card.querySelector('[data-action="favorite"]').addEventListener('click', () => toggleField(msg.id, 'is_favorite', !msg.is_favorite));

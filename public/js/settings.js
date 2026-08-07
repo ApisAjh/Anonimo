@@ -18,9 +18,13 @@ let currentProfile = null;
 async function init() {
   session = await requireLoginOrRedirect();
   if (!session) return;
-  await loadProfile();
-  await loadSettings();
-  await Promise.all([loadHiddenWords(), loadBlockedUsers()]);
+  // Semua data settings paralel — jangan serial
+  await Promise.all([
+    loadProfile(),
+    loadSettings(),
+    loadHiddenWords(),
+    loadBlockedUsers()
+  ]);
 }
 
 async function loadProfile() {

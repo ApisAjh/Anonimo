@@ -164,7 +164,8 @@ async function apiFetch(path, options = {}) {
 
   const headers = { ...(options.headers || {}) };
 
-  if (!(options.body instanceof FormData)) {
+  // Hanya set JSON Content-Type jika ada body (GET lebih ringan)
+  if (options.body && !(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
   if (session?.access_token) {
