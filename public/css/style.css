@@ -382,7 +382,10 @@ footer {
 @keyframes skeleton-loading { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
 
 /* ---------- Profile page ---------- */
-.profile-header { text-align: center; padding: 40px 0 20px; }
+.profile-header {
+  text-align: center;
+  padding: 36px 0 28px;
+}
 
 .profile-banner {
   position: relative; /* stacking context eksplisit, konsisten di semua tema (bukan cuma tema premium) */
@@ -400,7 +403,7 @@ footer {
   width: 100px; height: 100px;
   border-radius: 50%;
   border: 4px solid var(--bg-dark);
-  margin: 0 auto 12px;
+  margin: 0 auto 14px;
   background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
   display: flex; align-items: center; justify-content: center;
   font-size: 34px; font-weight: 700;
@@ -472,9 +475,27 @@ footer {
   100% { background-position: 180% 0; }
 }
 .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.profile-name { font-size: 22px; font-weight: 800; }
-.profile-username { color: var(--text-secondary); font-size: 14px; margin-bottom: 8px; }
-.profile-bio { color: var(--text-secondary); max-width: 420px; margin: 0 auto; font-size: 14px; }
+.profile-name {
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 4px;
+  line-height: 1.3;
+}
+.profile-username {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 4px;
+  margin-bottom: 10px;
+}
+.profile-bio {
+  color: var(--text-secondary);
+  max-width: 380px;
+  margin: 0 auto;
+  font-size: 14px;
+  line-height: 1.55;
+  text-align: center;
+  padding: 0 16px;
+}
 .premium-badge {
   display: inline-flex; align-items: center; gap: 4px;
   background: linear-gradient(135deg, #f59e0b, #f97316);
@@ -483,7 +504,11 @@ footer {
   margin-left: 6px;
 }
 
-.send-form { padding: 30px; max-width: 520px; margin: 30px auto 0; }
+.send-form {
+  padding: 28px 24px 32px;
+  max-width: 520px;
+  margin: 28px auto 48px;
+}
 .emoji-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .emoji-btn {
   font-size: 18px;
