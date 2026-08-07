@@ -154,34 +154,44 @@
 
       const initial = (p.display_name || p.username).charAt(0).toUpperCase();
       const bannerEl = document.getElementById('profile-banner');
+      const avatarEl = document.getElementById('profile-avatar');
+      const themeId = p.theme || 'default';
 
+      // Warna tema selalu diterapkan (free + premium)
+      bannerEl.classList.add(`theme-${themeId}`);
+      avatarEl.classList.add(`theme-${themeId}`);
+      document.getElementById('submit-btn').classList.add(`theme-${themeId}`);
+
+      // Banner: hanya tampilkan foto jika benar-benar load sukses
       if (p.banner_url) {
-        const bannerImg = document.createElement('img');
-        bannerImg.className = 'banner-photo';
-        bannerImg.alt = 'Banner';
-        bannerImg.src = p.banner_url;
-        bannerImg.onload = () => { bannerEl.classList.add('has-photo'); };
-        bannerImg.onerror = () => { bannerImg.remove(); bannerEl.classList.remove('has-photo'); };
-        bannerEl.appendChild(bannerImg);
+        const probe = new Image();
+        probe.onload = () => {
+          if (!probe.naturalWidth || !probe.naturalHeight) return;
+          const bannerImg = document.createElement('img');
+          bannerImg.className = 'banner-photo';
+          bannerImg.alt = 'Banner';
+          bannerImg.src = p.banner_url;
+          bannerEl.appendChild(bannerImg);
+          bannerEl.classList.add('has-photo');
+        };
+        probe.onerror = () => {
+          bannerEl.classList.remove('has-photo');
+        };
+        probe.src = p.banner_url;
       }
 
-      const avatarEl = document.getElementById('profile-avatar');
-      avatarEl.textContent = initial; // tampilkan huruf inisial dulu sebagai fallback
+      // Avatar: inisial dulu, ganti ke foto hanya jika load sukses
+      avatarEl.textContent = initial;
       if (p.avatar_url) {
         const avatarImg = new Image();
         avatarImg.onload = () => {
+          if (!avatarImg.naturalWidth) return;
           avatarEl.innerHTML = '';
           avatarImg.alt = `Avatar ${p.username}`;
           avatarEl.appendChild(avatarImg);
         };
-        avatarImg.onerror = () => { avatarEl.textContent = initial; }; // gagal load -> tetap huruf inisial
+        avatarImg.onerror = () => { avatarEl.textContent = initial; };
         avatarImg.src = p.avatar_url;
-      }
-
-      if (p.theme && p.theme !== 'default') {
-        document.getElementById('profile-banner').classList.add(`theme-${p.theme}`);
-        avatarEl.classList.add(`theme-${p.theme}`);
-        document.getElementById('submit-btn').classList.add(`theme-${p.theme}`);
       }
 
       document.getElementById('profile-name').innerHTML =
