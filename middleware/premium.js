@@ -28,26 +28,25 @@ async function syncPremiumStatus(userId) {
 
   const isPremium = !!active;
 
-  await supabaseAdmin
+  // Satu baca profil; update hanya jika perlu (hemat write)
+  const { data: profile } = await supabaseAdmin
     .from('profiles')
-    .update({ is_premium: isPremium })
-    .eq('id', userId);
+    .select('is_premium, theme')
+    .eq('id', userId)
+    .maybeSingle();
 
-  // Jika bukan premium dan tema premium masih terpasang, kembalikan ke default
-  if (!isPremium) {
+  const updates = {};
+  if (profile && profile.is_premium !== isPremium) {
+    updates.is_premium = isPremium;
+  }
+  if (!isPremium && profile) {
     const PREMIUM_THEMES = ['midnight', 'aurora', 'gold'];
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('theme')
-      .eq('id', userId)
-      .single();
-
-    if (profile && PREMIUM_THEMES.includes(profile.theme)) {
-      await supabaseAdmin
-        .from('profiles')
-        .update({ theme: 'default' })
-        .eq('id', userId);
+    if (PREMIUM_THEMES.includes(profile.theme)) {
+      updates.theme = 'default';
     }
+  }
+  if (Object.keys(updates).length > 0) {
+    await supabaseAdmin.from('profiles').update(updates).eq('id', userId);
   }
 
   return { isPremium, subscription: active || null };
