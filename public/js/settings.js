@@ -36,19 +36,53 @@ async function loadProfile() {
   document.getElementById('toggle-private').checked = !!currentProfile.is_private;
   document.getElementById('toggle-allow-images').checked = currentProfile.allow_images !== false;
 
-  const avatarEl = document.getElementById('preview-avatar');
-  if (currentProfile.avatar_url) {
-    avatarEl.innerHTML = `<img src="${currentProfile.avatar_url}" alt="Avatar" />`;
-  } else {
-    avatarEl.textContent = (currentProfile.display_name || currentProfile.username).charAt(0).toUpperCase();
-  }
-
-  const bannerEl = document.getElementById('preview-banner');
-  if (currentProfile.banner_url) {
-    bannerEl.style.backgroundImage = `url(${currentProfile.banner_url})`;
-  }
-
+  applyMediaPreviews();
   renderThemeGrid();
+}
+
+/** Terapkan kelas tema ke preview avatar & banner */
+function applyPreviewTheme(themeId) {
+  const theme = themeId || currentProfile?.theme || 'default';
+  const avatarEl = document.getElementById('preview-avatar');
+  const bannerEl = document.getElementById('preview-banner');
+  if (!avatarEl || !bannerEl) return;
+
+  const themeClasses = THEMES.map((t) => `theme-${t.id}`);
+  avatarEl.classList.remove(...themeClasses);
+  bannerEl.classList.remove(...themeClasses);
+  avatarEl.classList.add(`theme-${theme}`);
+  bannerEl.classList.add(`theme-${theme}`);
+}
+
+/** Render avatar + banner + tema aktif */
+function applyMediaPreviews() {
+  const avatarEl = document.getElementById('preview-avatar');
+  const bannerEl = document.getElementById('preview-banner');
+  if (!avatarEl || !bannerEl || !currentProfile) return;
+
+  applyPreviewTheme(currentProfile.theme);
+
+  // Avatar
+  if (currentProfile.avatar_url) {
+    avatarEl.innerHTML = `<img src="${currentProfile.avatar_url}" alt="Avatar" onerror="this.remove()" />`;
+  } else {
+    avatarEl.innerHTML = '';
+    avatarEl.textContent = (currentProfile.display_name || currentProfile.username || '?').charAt(0).toUpperCase();
+  }
+
+  // Banner: pakai gambar jika ada; jika gagal load (404) → gradient tema
+  bannerEl.style.backgroundImage = '';
+  if (currentProfile.banner_url) {
+    const testImg = new Image();
+    testImg.onload = () => {
+      bannerEl.style.backgroundImage = `url(${currentProfile.banner_url})`;
+    };
+    testImg.onerror = () => {
+      bannerEl.style.backgroundImage = '';
+      // URL rusak — biarkan gradient tema terlihat
+    };
+    testImg.src = currentProfile.banner_url;
+  }
 }
 
 async function loadSettings() {
@@ -87,6 +121,7 @@ function renderThemeGrid() {
         return;
       }
       currentProfile.theme = theme.id;
+      applyPreviewTheme(theme.id);
       renderThemeGrid();
       showToast('Tema diperbarui', 'success');
     });
@@ -137,7 +172,7 @@ document.getElementById('avatar-input').addEventListener('change', async (e) => 
     return;
   }
   currentProfile.avatar_url = data.data.avatar_url;
-  document.getElementById('preview-avatar').innerHTML = `<img src="${data.data.avatar_url}" alt="Avatar" />`;
+  applyMediaPreviews();
   showToast('Avatar diperbarui', 'success');
 });
 
@@ -160,7 +195,7 @@ document.getElementById('banner-input').addEventListener('change', async (e) => 
     return;
   }
   currentProfile.banner_url = data.data.banner_url;
-  document.getElementById('preview-banner').style.backgroundImage = `url(${data.data.banner_url})`;
+  applyMediaPreviews();
   showToast('Banner diperbarui', 'success');
 });
 
