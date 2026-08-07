@@ -38,7 +38,24 @@ router.get('/:username', async (req, res, next) => {
       .select()
       .maybeSingle(); // unique index harian akan menolak duplikat secara diam-diam
 
-    res.json({ success: true, data: profile });
+    // Cek apakah pengunjung (anonim) diblokir pemilik profil
+    let viewerBlocked = false;
+    const { data: blockedRow } = await supabaseAdmin
+      .from('blocked_senders')
+      .select('id')
+      .eq('user_id', profile.id)
+      .eq('sender_hash', ipHash)
+      .maybeSingle();
+    if (blockedRow) viewerBlocked = true;
+
+    // Jangan bocorkan id internal ke klien publik
+    const { id: _id, ...publicProfile } = profile;
+
+    res.json({
+      success: true,
+      data: publicProfile,
+      viewerBlocked
+    });
   } catch (err) {
     next(err);
   }
