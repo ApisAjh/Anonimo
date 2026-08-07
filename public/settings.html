@@ -110,6 +110,28 @@
         </div>
       </section>
 
+
+      <!-- Hidden Words -->
+      <section class="glass settings-card" id="hidden-words-section">
+        <h2>Hidden Words</h2>
+        <p class="settings-sub">Pesan yang mengandung kata di daftar ini tidak akan masuk inbox. Maksimal 100 kata.</p>
+        <form id="hidden-word-form" class="hidden-word-form">
+          <input type="text" id="hidden-word-input" maxlength="40" placeholder="Contoh: spam, promo, judi" autocomplete="off" />
+          <button type="submit" class="btn btn-primary btn-sm">Tambah</button>
+        </form>
+        <div class="form-error" id="hidden-word-error"></div>
+        <div class="tag-list" id="hidden-words-list"></div>
+        <p class="settings-meta" id="hidden-words-meta">0 / 100 kata</p>
+      </section>
+
+      <!-- Blocked Users -->
+      <section class="glass settings-card" id="blocked-users-section">
+        <h2>Blocked Users</h2>
+        <p class="settings-sub">Pengirim anonim yang kamu blokir tidak bisa mengirim pesan lagi ke kamu.</p>
+        <div id="blocked-list" class="blocked-list"></div>
+        <p class="settings-meta" id="blocked-empty" style="display:none;">Belum ada pengirim yang diblokir.</p>
+      </section>
+
       <!-- Keamanan -->
       <section class="glass settings-card">
         <h2>Keamanan</h2>
