@@ -64,6 +64,53 @@ router.get('/plans', (req, res) => {
   });
 });
 
+// GET /api/premium/bootstrap — 1 auth: status + plans + history
+router.get('/bootstrap', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // Sync sekali, lalu history paralel dengan susunan response plans (in-memory)
+    const { isPremium, subscription } = await syncPremiumStatus(userId);
+
+    const { data: history } = await supabaseAdmin
+      .from('premium')
+      .select('id, plan, started_at, expires_at, is_active, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    const plans = Object.values(PLANS).map((p) => ({
+      id: p.id,
+      label: p.label,
+      months: p.months,
+      price: p.price,
+      priceLabel: p.priceLabel,
+      description: p.description
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        isPremium,
+        subscription: subscription
+          ? {
+              id: subscription.id,
+              plan: subscription.plan,
+              planLabel: PLANS[subscription.plan]?.label || subscription.plan,
+              startedAt: subscription.started_at,
+              expiresAt: subscription.expires_at,
+              isActive: subscription.is_active
+            }
+          : null,
+        history: history || [],
+        plans
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/premium/status — status premium user yang login
 router.get('/status', requireAuth, async (req, res, next) => {
   try {
