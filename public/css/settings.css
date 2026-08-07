@@ -339,3 +339,43 @@ html{scroll-behavior:smooth;}body{overflow-x:hidden;}*{backface-visibility:hidde
   color: var(--text-secondary);
   margin-top: 2px;
 }
+
+
+/* Ring luar preview avatar & banner mengikuti tema */
+.preview-avatar.theme-default {
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.65), 0 0 14px rgba(37, 99, 235, 0.35);
+}
+.preview-avatar.theme-sunset {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.65), 0 0 14px rgba(219, 39, 119, 0.35);
+}
+.preview-avatar.theme-ocean {
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.65), 0 0 14px rgba(29, 78, 216, 0.35);
+}
+.preview-avatar.theme-midnight {
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.55), 0 0 16px rgba(250, 204, 21, 0.35);
+}
+.preview-avatar.theme-aurora {
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.6), 0 0 16px rgba(99, 102, 241, 0.4);
+}
+.preview-avatar.theme-gold {
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.7), 0 0 18px rgba(245, 158, 11, 0.45);
+}
+
+.preview-banner.theme-default {
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.5);
+}
+.preview-banner.theme-sunset {
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.5);
+}
+.preview-banner.theme-ocean {
+  box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.5);
+}
+.preview-banner.theme-midnight {
+  box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.4);
+}
+.preview-banner.theme-aurora {
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.5);
+}
+.preview-banner.theme-gold {
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.55);
+}
