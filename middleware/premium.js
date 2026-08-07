@@ -101,4 +101,66 @@ async function attachPremiumStatus(req, res, next) {
   }
 }
 
-module.exports = { syncPremiumStatus, requirePremium, attachPremiumStatus };
+
+/**
+ * Path cepat untuk LOAD halaman Premium.
+ * Baca status dulu (paralel-friendly); tulis DB hanya jika benar-benar expired / drift flag.
+ * Jangan dipakai untuk upgrade/cancel — tetap pakai syncPremiumStatus di sana.
+ */
+async function getPremiumStatusForPage(userId) {
+  const now = new Date().toISOString();
+
+  // 1 round-trip paralel: langganan aktif + flag profil
+  const [activeRes, profileRes] = await Promise.all([
+    supabaseAdmin
+      .from('premium')
+      .select('id, plan, started_at, expires_at, is_active, user_id')
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .order('expires_at', { ascending: false, nullsFirst: true })
+      .limit(1)
+      .maybeSingle(),
+    supabaseAdmin
+      .from('profiles')
+      .select('is_premium, theme')
+      .eq('id', userId)
+      .maybeSingle()
+  ]);
+
+  let subscription = activeRes.data || null;
+  let isPremium = false;
+
+  if (subscription) {
+    const expired = subscription.expires_at && subscription.expires_at <= now;
+    if (expired) {
+      await supabaseAdmin
+        .from('premium')
+        .update({ is_active: false })
+        .eq('id', subscription.id);
+      subscription = null;
+      isPremium = false;
+    } else {
+      isPremium = true;
+    }
+  }
+
+  const profile = profileRes.data;
+  const updates = {};
+  if (profile && profile.is_premium !== isPremium) {
+    updates.is_premium = isPremium;
+  }
+  if (!isPremium && profile) {
+    const PREMIUM_THEMES = ['midnight', 'aurora', 'gold'];
+    if (PREMIUM_THEMES.includes(profile.theme)) {
+      updates.theme = 'default';
+    }
+  }
+  // Write hanya jika ada drift — kasus umum: 0 write
+  if (Object.keys(updates).length > 0) {
+    await supabaseAdmin.from('profiles').update(updates).eq('id', userId);
+  }
+
+  return { isPremium, subscription };
+}
+
+module.exports = { syncPremiumStatus, getPremiumStatusForPage, requirePremium, attachPremiumStatus };
