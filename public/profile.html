@@ -194,20 +194,30 @@
         avatarImg.src = p.avatar_url;
       }
 
-      document.getElementById('profile-name').innerHTML =
-        (p.display_name || p.username) + (p.is_premium ? '<span class="premium-badge">✨ Premium</span>' : '');
-      document.getElementById('profile-username').textContent = `@${p.username}`;
-      document.getElementById('profile-bio').textContent = p.bio || '';
+      const nameEl = document.getElementById('profile-name');
+      const userEl = document.getElementById('profile-username');
+      const bioEl = document.getElementById('profile-bio');
+      const contentEl = document.getElementById('profile-content');
 
       document.getElementById('profile-content').style.display = 'block';
 
-      // Jika pengunjung diblokir: sembunyikan form, tampilkan pesan, putihkan media
-      const contentEl = document.getElementById('profile-content');
+      // Jika pengunjung diblokir: identitas disamarkan, form diganti pesan
       if (data.viewerBlocked) {
+        nameEl.textContent = 'Akun tidak ditemukan';
+        userEl.textContent = '';
+        bioEl.textContent = '';
+        userEl.style.display = 'none';
+        bioEl.style.display = 'none';
         document.getElementById('send-form').style.display = 'none';
         document.getElementById('profile-blocked').style.display = 'block';
         contentEl.classList.add('is-blocked-viewer');
       } else {
+        nameEl.innerHTML =
+          (p.display_name || p.username) + (p.is_premium ? '<span class="premium-badge">✨ Premium</span>' : '');
+        userEl.textContent = `@${p.username}`;
+        bioEl.textContent = p.bio || '';
+        userEl.style.display = '';
+        bioEl.style.display = '';
         document.getElementById('send-form').style.display = '';
         document.getElementById('profile-blocked').style.display = 'none';
         contentEl.classList.remove('is-blocked-viewer');
