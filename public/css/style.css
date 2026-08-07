@@ -572,3 +572,58 @@ footer {
 
 html{scroll-behavior:smooth;}body{overflow-x:hidden;}*{backface-visibility:hidden;-webkit-font-smoothing:antialiased;}
     
+
+
+/* ---------- Profil: status diblokir ---------- */
+.profile-blocked {
+  text-align: center;
+  padding: 36px 28px !important;
+}
+.profile-blocked .blocked-icon {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.profile-blocked .blocked-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+.profile-blocked .blocked-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+
+/* Media profil putih/terhapus saat viewer diblokir */
+.profile-content.is-blocked-viewer .profile-banner,
+#profile-content.is-blocked-viewer .profile-banner {
+  background: #f5f5f5 !important;
+  background-image: none !important;
+  animation: none !important;
+}
+.profile-content.is-blocked-viewer .profile-banner .banner-photo,
+#profile-content.is-blocked-viewer .profile-banner .banner-photo {
+  opacity: 0;
+  visibility: hidden;
+}
+.profile-content.is-blocked-viewer .profile-banner::after,
+#profile-content.is-blocked-viewer .profile-banner::after {
+  display: none !important;
+}
+.profile-content.is-blocked-viewer .profile-avatar,
+#profile-content.is-blocked-viewer .profile-avatar {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: transparent !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+.profile-content.is-blocked-viewer .profile-avatar img,
+#profile-content.is-blocked-viewer .profile-avatar img {
+  opacity: 0;
+  visibility: hidden;
+}
