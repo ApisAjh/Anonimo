@@ -166,31 +166,26 @@
 
       contentEl.style.display = 'block';
 
-      // ---- VIEWER DIBLOKIR: putih polos, tanpa tema/foto, jangan load media ----
-      if (data.viewerBlocked) {
-        nameEl.textContent = 'Akun tidak ditemukan';
-        userEl.textContent = '';
-        bioEl.textContent = '';
-        userEl.style.display = 'none';
-        bioEl.style.display = 'none';
-        formEl.style.display = 'none';
-        blockedEl.style.display = 'block';
-        contentEl.classList.add('is-blocked-viewer');
+      // ---- VIEWER DIBLOKIR ----
+if (data.viewerBlocked) {
+    formEl.style.display = 'none';
+    blockedEl.style.display = 'block';
 
-        // Bersihkan media & tema
-        bannerEl.className = 'profile-banner';
-        avatarEl.className = 'profile-avatar';
-        bannerEl.innerHTML = '';
-        avatarEl.innerHTML = '';
-        avatarEl.textContent = '';
+    contentEl.classList.add('is-blocked-viewer');
 
-        // Inline putih absolut (tidak bisa ditimpa onload foto)
-        // removed banner style
-//bannerEl.setAttribute('style', 'background:#ffffff !important; background-image:none !important; box-shadow:none !important; border:none !important; filter:none !important;');
-        // removed avatar style
-//avatarEl.setAttribute('style', 'background:#ffffff !important; background-image:none !important; box-shadow:none !important; border:3px solid #e5e5e5 !important; color:transparent !important; filter:none !important;');
-        return; // penting: jangan lanjut load tema/foto
-      }
+    nameEl.textContent = 'Profil Pribadi';
+    userEl.textContent = '';
+    bioEl.textContent = '';
+
+    bannerEl.className = 'profile-banner theme-default';
+    bannerEl.classList.remove('has-photo');
+    bannerEl.innerHTML = '';
+
+    avatarEl.className = 'profile-avatar theme-default';
+    avatarEl.innerHTML = '👤';
+
+    return;
+}
 
       // ---- VIEWER NORMAL ----
       contentEl.classList.remove('is-blocked-viewer');
