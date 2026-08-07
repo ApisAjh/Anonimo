@@ -644,69 +644,12 @@ html{scroll-behavior:smooth;}body{overflow-x:hidden;}*{backface-visibility:hidde
   margin: 0;
 }
 
-
-/* Media profil putih/terhapus saat viewer diblokir */
-/* Putih solid — kalahkan semua class tema (gradient, ring, shimmer) */
-#profile-content.is-blocked-viewer .profile-banner,
-#profile-content.is-blocked-viewer .profile-banner.theme-default,
-#profile-content.is-blocked-viewer .profile-banner.theme-sunset,
-#profile-content.is-blocked-viewer .profile-banner.theme-ocean,
-#profile-content.is-blocked-viewer .profile-banner.theme-midnight,
-#profile-content.is-blocked-viewer .profile-banner.theme-aurora,
-#profile-content.is-blocked-viewer .profile-banner.theme-gold {
-  background: #ffffff !important;
-  background-image: none !important;
-  background-size: auto !important;
-  animation: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  filter: none !important;
-}
-#profile-content.is-blocked-viewer .profile-banner .banner-photo {
-  display: none !important;
-}
-#profile-content.is-blocked-viewer .profile-banner::before,
-#profile-content.is-blocked-viewer .profile-banner::after {
-  content: none !important;
-  display: none !important;
-  animation: none !important;
-}
-#profile-content.is-blocked-viewer .profile-avatar,
-#profile-content.is-blocked-viewer .profile-avatar.theme-default,
-#profile-content.is-blocked-viewer .profile-avatar.theme-sunset,
-#profile-content.is-blocked-viewer .profile-avatar.theme-ocean,
-#profile-content.is-blocked-viewer .profile-avatar.theme-midnight,
-#profile-content.is-blocked-viewer .profile-avatar.theme-aurora,
-#profile-content.is-blocked-viewer .profile-avatar.theme-gold {
-  background: #ffffff !important;
-  background-image: none !important;
-  background-size: auto !important;
-  color: transparent !important;
-  border: 3px solid #e5e5e5 !important;
-  box-shadow: none !important;
-  animation: none !important;
-  filter: none !important;
-  text-shadow: none !important;
-}
-#profile-content.is-blocked-viewer .profile-avatar img {
-  display: none !important;
-}
-
-
-/* Identitas disembunyikan saat viewer diblokir */
-#profile-content.is-blocked-viewer .profile-name {
-  color: var(--text-secondary);
-  font-size: 18px;
-  font-weight: 700;
-}
+/* Viewer diblokir */
 #profile-content.is-blocked-viewer .profile-username,
 #profile-content.is-blocked-viewer .profile-bio {
   display: none !important;
 }
 
-
-/* Fallback tambahan: elemen yang sudah di-inline putih saat blocked */
-#profile-content.is-blocked-viewer .profile-banner[style],
-#profile-content.is-blocked-viewer .profile-avatar[style] {
-  background-color: #ffffff !important;
+#profile-content.is-blocked-viewer .profile-name {
+  color: var(--text-secondary);
 }
