@@ -16,6 +16,7 @@ const settingsRoutes = require('../routes/settings.routes');
 const premiumRoutes = require('../routes/premium.routes');
 const captchaRoutes = require('../routes/captcha.routes');
 const moderationRoutes = require('../routes/moderation.routes');
+const dashboardRoutes = require('../routes/dashboard.routes');
 
 const app = express();
 
@@ -61,6 +62,7 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/premium', premiumRoutes);
 app.use('/api/captcha', captchaRoutes);
 app.use('/api/moderation', moderationRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ success: true, status: 'ok', timestamp: new Date().toISOString() });
