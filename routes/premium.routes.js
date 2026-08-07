@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { supabaseAdmin } = require('../config/supabase');
 const { requireAuth } = require('../middleware/auth');
-const { syncPremiumStatus } = require('../middleware/premium');
+const { syncPremiumStatus, getPremiumStatusForPage } = require('../middleware/premium');
 
 /**
  * Paket Premium (simulasi — tanpa payment gateway).
@@ -64,20 +64,25 @@ router.get('/plans', (req, res) => {
   });
 });
 
-// GET /api/premium/bootstrap — 1 auth: status + plans + history
+// GET /api/premium/bootstrap — path cepat load halaman (bukan full sync berat)
 router.get('/bootstrap', requireAuth, async (req, res, next) => {
   try {
     const userId = req.user.id;
+    const t0 = Date.now();
 
-    // Sync sekali, lalu history paralel dengan susunan response plans (in-memory)
-    const { isPremium, subscription } = await syncPremiumStatus(userId);
+    // Status + history paralel (plans dari memori — 0ms)
+    const [statusResult, historyResult] = await Promise.all([
+      getPremiumStatusForPage(userId),
+      supabaseAdmin
+        .from('premium')
+        .select('id, plan, started_at, expires_at, is_active, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(10)
+    ]);
 
-    const { data: history } = await supabaseAdmin
-      .from('premium')
-      .select('id, plan, started_at, expires_at, is_active, created_at')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(10);
+    const { isPremium, subscription } = statusResult;
+    const history = historyResult.data || [];
 
     const plans = Object.values(PLANS).map((p) => ({
       id: p.id,
@@ -87,6 +92,9 @@ router.get('/bootstrap', requireAuth, async (req, res, next) => {
       priceLabel: p.priceLabel,
       description: p.description
     }));
+
+    // Timing server (header debug, tidak mengubah response body)
+    res.setHeader('Server-Timing', `premium;dur=${Date.now() - t0}`);
 
     res.json({
       success: true,
@@ -102,7 +110,7 @@ router.get('/bootstrap', requireAuth, async (req, res, next) => {
               isActive: subscription.is_active
             }
           : null,
-        history: history || [],
+        history,
         plans
       }
     });
