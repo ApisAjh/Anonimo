@@ -126,15 +126,15 @@
         <div style="max-width: 640px; margin: 0 auto;">
           <div class="glass faq-item" data-animate>
             <div class="faq-question">Apakah pengirim pesan benar-benar anonim? <span class="faq-icon">+</span></div>
-            <div class="faq-answer">Ya. Kami tidak menyimpan data pribadi pengirim seperti nama asli atau kontak. Sistem hanya mencatat data teknis terbatas untuk mencegah spam.</div>
+            <div class="faq-answer"><div class="faq-answer-inner">Ya. Kami tidak menyimpan data pribadi pengirim seperti nama asli atau kontak. Sistem hanya mencatat data teknis terbatas untuk mencegah spam.</div></div>
           </div>
           <div class="glass faq-item" data-animate>
             <div class="faq-question">Apakah Anonimo gratis digunakan? <span class="faq-icon">+</span></div>
-            <div class="faq-answer">Fitur inti Anonimo 100% gratis. Kami juga menyediakan paket Premium opsional untuk tema dan statistik tambahan.</div>
+            <div class="faq-answer"><div class="faq-answer-inner">Fitur inti Anonimo 100% gratis. Kami juga menyediakan paket Premium opsional untuk tema dan statistik tambahan.</div></div>
           </div>
           <div class="glass faq-item" data-animate>
             <div class="faq-question">Bagaimana jika saya menerima pesan yang mengganggu? <span class="faq-icon">+</span></div>
-            <div class="faq-answer">Kamu bisa melaporkan pesan tersebut langsung dari dashboard, dan mengatur privasi profil untuk membatasi siapa yang dapat mengirim pesan.</div>
+            <div class="faq-answer"><div class="faq-answer-inner">Kamu bisa melaporkan pesan tersebut langsung dari dashboard, dan mengatur privasi profil untuk membatasi siapa yang dapat mengirim pesan.</div></div>
           </div>
         </div>
       </div>
@@ -164,9 +164,15 @@
       if (username) window.location.href = `/u/${encodeURIComponent(username)}`;
     });
 
-    document.querySelectorAll('.faq-item').forEach((item) => {
-      item.querySelector('.faq-question').addEventListener('click', () => {
-        item.classList.toggle('open');
+    // FAQ accordion: satu terbuka, animasi smooth via CSS grid
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach((item) => {
+      const q = item.querySelector('.faq-question');
+      if (!q) return;
+      q.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        faqItems.forEach((other) => other.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
       });
     });
   </script>
