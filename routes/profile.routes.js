@@ -32,21 +32,22 @@ router.get('/:username', async (req, res, next) => {
     }
 
     const ipHash = hashIp(getClientIp(req), req.headers['user-agent'] || '');
-    await supabaseAdmin
-      .from('views')
-      .insert({ profile_id: profile.id, viewer_ip_hash: ipHash })
-      .select()
-      .maybeSingle(); // unique index harian akan menolak duplikat secara diam-diam
 
-    // Cek apakah pengunjung (anonim) diblokir pemilik profil
-    let viewerBlocked = false;
-    const { data: blockedRow } = await supabaseAdmin
-      .from('blocked_senders')
-      .select('id')
-      .eq('user_id', profile.id)
-      .eq('sender_hash', ipHash)
-      .maybeSingle();
-    if (blockedRow) viewerBlocked = true;
+    // View + cek blokir paralel (hemat latency)
+    const [blockedRes] = await Promise.all([
+      supabaseAdmin
+        .from('blocked_senders')
+        .select('id')
+        .eq('user_id', profile.id)
+        .eq('sender_hash', ipHash)
+        .maybeSingle(),
+      supabaseAdmin
+        .from('views')
+        .insert({ profile_id: profile.id, viewer_ip_hash: ipHash })
+        .select()
+        .maybeSingle()
+    ]);
+    const viewerBlocked = !!blockedRes.data;
 
     // Jangan bocorkan id internal ke klien publik
     const { id: _id, ...publicProfile } = profile;

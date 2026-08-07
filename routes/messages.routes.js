@@ -219,29 +219,30 @@ router.delete('/:id', requireAuth, async (req, res, next) => {
 // GET /api/messages/stats — statistik ringkas untuk dashboard
 router.get('/stats/summary', requireAuth, async (req, res, next) => {
   try {
-    const { syncPremiumStatus } = require('../middleware/premium');
-    const { isPremium } = await syncPremiumStatus(req.user.id);
+    // Baca flag is_premium dari profil (tanpa sync berat di setiap load dashboard)
+    const [profileRes, unreadRes] = await Promise.all([
+      supabaseAdmin
+        .from('profiles')
+        .select('message_count, view_count, is_premium')
+        .eq('id', req.user.id)
+        .single(),
+      supabaseAdmin
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('recipient_id', req.user.id)
+        .eq('is_read', false)
+    ]);
 
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('message_count, view_count, is_premium')
-      .eq('id', req.user.id)
-      .single();
-
-    const { count: unreadCount } = await supabaseAdmin
-      .from('messages')
-      .select('*', { count: 'exact', head: true })
-      .eq('recipient_id', req.user.id)
-      .eq('is_read', false);
+    const profile = profileRes.data;
+    const isPremium = !!profile?.is_premium;
 
     const data = {
       totalMessages: profile?.message_count || 0,
       totalViews: profile?.view_count || 0,
-      unreadMessages: unreadCount || 0,
+      unreadMessages: unreadRes.count || 0,
       isPremium
     };
 
-    // Statistik mendalam khusus Premium
     if (isPremium) {
       const [pinned, favorite, archived] = await Promise.all([
         supabaseAdmin.from('messages').select('*', { count: 'exact', head: true }).eq('recipient_id', req.user.id).eq('is_pinned', true),
