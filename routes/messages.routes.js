@@ -62,6 +62,36 @@ router.post('/:username', sendMessageLimiter, upload.single('image'), async (req
 
     const ipHash = hashIp(getClientIp(req), req.headers['user-agent'] || '');
 
+    // Block User: tolak jika sender_hash (ip_hash) diblokir penerima
+    const { data: blocked } = await supabaseAdmin
+      .from('blocked_senders')
+      .select('id')
+      .eq('user_id', profile.id)
+      .eq('sender_hash', ipHash)
+      .maybeSingle();
+
+    if (blocked) {
+      // Pesan generik — jangan bocorkan status blokir
+      return res.status(400).json({ success: false, error: 'Pesan tidak dapat dikirim.' });
+    }
+
+    // Hidden Words: tolak jika konten mengandung kata tersembunyi (case-insensitive)
+    const { data: hiddenRows } = await supabaseAdmin
+      .from('hidden_words')
+      .select('word')
+      .eq('user_id', profile.id);
+
+    if (hiddenRows && hiddenRows.length > 0) {
+      const contentLower = content.toLowerCase();
+      const hit = hiddenRows.some((row) => {
+        const w = (row.word || '').toLowerCase();
+        return w && contentLower.includes(w);
+      });
+      if (hit) {
+        return res.status(400).json({ success: false, error: 'Pesan tidak dapat dikirim.' });
+      }
+    }
+
     const { data: message, error: insertError } = await supabaseAdmin
       .from('messages')
       .insert({
