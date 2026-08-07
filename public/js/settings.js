@@ -18,13 +18,90 @@ let currentProfile = null;
 async function init() {
   session = await requireLoginOrRedirect();
   if (!session) return;
-  // Semua data settings paralel — jangan serial
-  await Promise.all([
-    loadProfile(),
-    loadSettings(),
-    loadHiddenWords(),
-    loadBlockedUsers()
-  ]);
+  await loadBootstrap();
+}
+
+/** Satu request: profil + settings + hidden words + blocked */
+async function loadBootstrap() {
+  const { ok, data } = await apiFetch('/settings/bootstrap');
+  if (!ok) {
+    showToast(data.error || 'Gagal memuat pengaturan', 'error');
+    return;
+  }
+  const payload = data.data || {};
+  if (payload.profile) {
+    currentProfile = payload.profile;
+    applyProfileForm(payload.profile);
+    applyMediaPreviews();
+    renderThemeGrid();
+  }
+  if (payload.settings) applySettingsForm(payload.settings);
+  renderHiddenWords(payload.hiddenWords || [], payload.hiddenWordsMeta);
+  renderBlockedUsers(payload.blocked || []);
+}
+
+function applyProfileForm(profile) {
+  document.getElementById('username-display').value = `@${profile.username}`;
+  document.getElementById('display-name').value = profile.display_name || '';
+  document.getElementById('bio').value = profile.bio || '';
+  document.getElementById('toggle-private').checked = !!profile.is_private;
+  document.getElementById('toggle-allow-images').checked = profile.allow_images !== false;
+}
+
+function applySettingsForm(settings) {
+  document.getElementById('toggle-email-notif').checked = settings.email_notifications !== false;
+  document.getElementById('toggle-push-notif').checked = settings.push_notifications !== false;
+  document.getElementById('toggle-show-views').checked = settings.show_view_count !== false;
+}
+
+function renderHiddenWords(words, meta) {
+  const listEl = document.getElementById('hidden-words-list');
+  const metaEl = document.getElementById('hidden-words-meta');
+  if (!listEl) return;
+  const max = meta?.max || 100;
+  if (metaEl) metaEl.textContent = `${(words || []).length} / ${max} kata`;
+  listEl.innerHTML = '';
+  (words || []).forEach((row) => {
+    const tag = document.createElement('span');
+    tag.className = 'word-tag';
+    tag.innerHTML = `<span>${escapeHtmlSettings(row.word)}</span>`;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Hapus kata');
+    btn.textContent = '×';
+    btn.addEventListener('click', () => removeHiddenWord(row.id));
+    tag.appendChild(btn);
+    listEl.appendChild(tag);
+  });
+}
+
+function renderBlockedUsers(rows) {
+  const listEl = document.getElementById('blocked-list');
+  const emptyEl = document.getElementById('blocked-empty');
+  if (!listEl) return;
+  listEl.innerHTML = '';
+  if (!rows || rows.length === 0) {
+    if (emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+  rows.forEach((row) => {
+    const item = document.createElement('div');
+    item.className = 'blocked-item';
+    const when = row.created_at ? new Date(row.created_at).toLocaleDateString('id-ID') : '';
+    item.innerHTML = `
+      <div class="blocked-item-info">
+        <div class="blocked-item-label">${escapeHtmlSettings(row.label || 'Anonim')}</div>
+        <div class="blocked-item-meta">ID ${escapeHtmlSettings(row.fingerprint || '—')} · ${when}</div>
+      </div>
+    `;
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-ghost btn-sm';
+    btn.textContent = '✅ Unblock';
+    btn.addEventListener('click', () => unblockSender(row.id));
+    item.appendChild(btn);
+    listEl.appendChild(item);
+  });
 }
 
 async function loadProfile() {

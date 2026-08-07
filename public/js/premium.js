@@ -9,24 +9,31 @@ let currentStatus = null;
 async function init() {
   session = await requireLoginOrRedirect();
   if (!session) return;
-  await Promise.all([loadStatus(), loadPlans()]);
+  await loadBootstrap();
 }
 
-async function loadStatus() {
-  const { ok, data } = await apiFetch('/premium/status');
+/** Satu request: status + plans + history */
+async function loadBootstrap() {
+  const { ok, data } = await apiFetch('/premium/bootstrap');
   if (!ok) {
     document.getElementById('status-text').textContent = 'Gagal memuat status Premium';
     return;
   }
+  const payload = data.data || {};
+  currentStatus = payload;
+  applyStatusUI(payload);
+  renderHistory(payload.history || []);
+  renderPlans(payload.plans || []);
+}
 
-  currentStatus = data.data;
+function applyStatusUI(status) {
   const badge = document.getElementById('status-badge');
   const text = document.getElementById('status-text');
   const meta = document.getElementById('status-meta');
   const actions = document.getElementById('status-actions');
 
-  if (currentStatus.isPremium && currentStatus.subscription) {
-    const sub = currentStatus.subscription;
+  if (status.isPremium && status.subscription) {
+    const sub = status.subscription;
     badge.textContent = '✨ Premium Aktif';
     badge.className = 'status-badge active';
     text.textContent = `Kamu sedang menikmati paket ${sub.planLabel || sub.plan}.`;
@@ -43,8 +50,11 @@ async function loadStatus() {
     meta.style.display = 'none';
     actions.style.display = 'none';
   }
+}
 
-  renderHistory(currentStatus.history || []);
+async function loadStatus() {
+  // Setelah upgrade/cancel: refresh penuh via bootstrap (1 request)
+  await loadBootstrap();
 }
 
 function renderHistory(history) {
@@ -64,19 +74,15 @@ function renderHistory(history) {
   `).join('');
 }
 
-async function loadPlans() {
-  const { ok, data } = await apiFetch('/premium/plans');
+function renderPlans(plans) {
   const grid = document.getElementById('plans-grid');
-
-  if (!ok || !data.data) {
+  if (!grid) return;
+  if (!plans || !plans.length) {
     grid.innerHTML = '<p style="color:var(--text-secondary)">Gagal memuat paket.</p>';
     return;
   }
-
-  const plans = data.data;
   grid.innerHTML = '';
-
-  plans.forEach((plan, idx) => {
+  plans.forEach((plan) => {
     const featured = plan.id === 'yearly';
     const card = document.createElement('div');
     card.className = `glass plan-card ${featured ? 'featured' : ''}`;
@@ -93,6 +99,10 @@ async function loadPlans() {
   });
 }
 
+async function loadPlans() {
+  await loadBootstrap();
+}
+
 async function upgrade(planId, planLabel) {
   if (!confirm(`Aktifkan paket ${planLabel}? (Simulasi — tanpa pembayaran)`)) return;
 
@@ -107,8 +117,7 @@ async function upgrade(planId, planLabel) {
   }
 
   showToast(data.message || 'Premium aktif!', 'success');
-  await loadStatus();
-  await loadPlans();
+  await loadBootstrap();
 }
 
 document.getElementById('renew-btn')?.addEventListener('click', async () => {
@@ -138,8 +147,7 @@ document.getElementById('cancel-btn')?.addEventListener('click', async () => {
     return;
   }
   showToast(data.message || 'Premium dibatalkan', 'success');
-  await loadStatus();
-  await loadPlans();
+  await loadBootstrap();
 });
 
 function formatDate(iso) {
