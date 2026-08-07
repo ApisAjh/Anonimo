@@ -388,25 +388,30 @@ footer {
 }
 
 .profile-banner {
-  position: relative; /* stacking context eksplisit, konsisten di semua tema (bukan cuma tema premium) */
-  z-index: 1;          /* banner selalu di lapisan bawah */
-  height: 180px;
+  position: relative;
+  z-index: 1;
+  height: 160px;
   border-radius: var(--radius-lg);
   background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
   background-size: cover;
   background-position: center;
-  margin-bottom: -50px; /* menarik avatar naik separuh tingginya (100px / 2 = 50px) agar menimpa banner */
+  margin-bottom: -44px; /* overlap rapi ~setengah avatar */
+  overflow: hidden;
 }
 .profile-avatar {
-  position: relative; /* wajib: supaya avatar ikut masuk stacking context ber-z-index, bukan lagi elemen static */
-  z-index: 2;          /* avatar selalu di lapisan atas, di atas banner */
-  width: 100px; height: 100px;
+  position: relative;
+  z-index: 2;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
-  border: 4px solid var(--bg-dark);
-  margin: 0 auto 14px;
+  border: 3px solid var(--bg-dark);
+  margin: 0 auto 12px;
   background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 34px; font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 700;
   overflow: hidden;
 }
 /* ---------- Tema profil publik (harus sinkron dgn public/css/settings.css) ---------- */
