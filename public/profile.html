@@ -211,6 +211,19 @@
         document.getElementById('send-form').style.display = 'none';
         document.getElementById('profile-blocked').style.display = 'block';
         contentEl.classList.add('is-blocked-viewer');
+
+        // Paksa putih: lepas class tema + inline style
+        const bannerEl = document.getElementById('profile-banner');
+        const avatarEl = document.getElementById('profile-avatar');
+        ['theme-default','theme-sunset','theme-ocean','theme-midnight','theme-aurora','theme-gold','has-photo'].forEach((cls) => {
+          bannerEl.classList.remove(cls);
+          avatarEl.classList.remove(cls);
+        });
+        bannerEl.querySelectorAll('.banner-photo').forEach((el) => el.remove());
+        avatarEl.innerHTML = '';
+        avatarEl.textContent = '';
+        bannerEl.style.cssText = 'background:#ffffff!important;background-image:none!important;box-shadow:none!important;border:none!important;';
+        avatarEl.style.cssText = 'background:#ffffff!important;background-image:none!important;box-shadow:none!important;border:3px solid #e5e5e5!important;color:transparent!important;';
       } else {
         nameEl.innerHTML =
           (p.display_name || p.username) + (p.is_premium ? '<span class="premium-badge">✨ Premium</span>' : '');
