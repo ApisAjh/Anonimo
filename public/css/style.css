@@ -674,3 +674,15 @@ html{scroll-behavior:smooth;}body{overflow-x:hidden;}*{backface-visibility:hidde
   opacity: 0;
   visibility: hidden;
 }
+
+
+/* Identitas disembunyikan saat viewer diblokir */
+#profile-content.is-blocked-viewer .profile-name {
+  color: var(--text-secondary);
+  font-size: 18px;
+  font-weight: 700;
+}
+#profile-content.is-blocked-viewer .profile-username,
+#profile-content.is-blocked-viewer .profile-bio {
+  display: none !important;
+}
