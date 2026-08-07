@@ -34,6 +34,12 @@
           <div class="profile-bio" id="profile-bio"></div>
         </div>
 
+        <div class="glass send-form profile-blocked" id="profile-blocked" style="display:none;">
+          <div class="blocked-icon" aria-hidden="true">🚫</div>
+          <h3 class="blocked-title">Kamu telah diblokir oleh pengguna ini</h3>
+          <p class="blocked-desc">Kamu tidak dapat mengirim pesan ke profil ini.</p>
+        </div>
+
         <form class="glass send-form" id="send-form">
           <div class="form-group">
             <label for="senderName">Nama (opsional)</label>
@@ -184,6 +190,18 @@
       document.getElementById('profile-bio').textContent = p.bio || '';
 
       document.getElementById('profile-content').style.display = 'block';
+
+      // Jika pengunjung diblokir: sembunyikan form, tampilkan pesan, putihkan media
+      const contentEl = document.getElementById('profile-content');
+      if (data.viewerBlocked) {
+        document.getElementById('send-form').style.display = 'none';
+        document.getElementById('profile-blocked').style.display = 'block';
+        contentEl.classList.add('is-blocked-viewer');
+      } else {
+        document.getElementById('send-form').style.display = '';
+        document.getElementById('profile-blocked').style.display = 'none';
+        contentEl.classList.remove('is-blocked-viewer');
+      }
     }
 
     document.getElementById('send-form').addEventListener('submit', async (e) => {
