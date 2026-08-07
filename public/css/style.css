@@ -703,3 +703,10 @@ html{scroll-behavior:smooth;}body{overflow-x:hidden;}*{backface-visibility:hidde
 #profile-content.is-blocked-viewer .profile-bio {
   display: none !important;
 }
+
+
+/* Fallback tambahan: elemen yang sudah di-inline putih saat blocked */
+#profile-content.is-blocked-viewer .profile-banner[style],
+#profile-content.is-blocked-viewer .profile-avatar[style] {
+  background-color: #ffffff !important;
+}
