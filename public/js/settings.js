@@ -20,6 +20,7 @@ async function init() {
   if (!session) return;
   await loadProfile();
   await loadSettings();
+  await Promise.all([loadHiddenWords(), loadBlockedUsers()]);
 }
 
 async function loadProfile() {
@@ -309,5 +310,132 @@ document.getElementById('delete-confirm').addEventListener('click', async () => 
   showToast('Akun berhasil dihapus', 'success');
   setTimeout(() => { window.location.href = '/'; }, 1200);
 });
+
+
+
+// ---------- Hidden Words ----------
+async function loadHiddenWords() {
+  const listEl = document.getElementById('hidden-words-list');
+  const metaEl = document.getElementById('hidden-words-meta');
+  if (!listEl) return;
+
+  const { ok, data } = await apiFetch('/moderation/hidden-words');
+  if (!ok) {
+    listEl.innerHTML = '<span class="settings-meta">Gagal memuat daftar kata</span>';
+    return;
+  }
+
+  const words = data.data || [];
+  const max = data.meta?.max || 100;
+  if (metaEl) metaEl.textContent = `${words.length} / ${max} kata`;
+
+  listEl.innerHTML = '';
+  words.forEach((row) => {
+    const tag = document.createElement('span');
+    tag.className = 'word-tag';
+    tag.innerHTML = `<span>${escapeHtmlSettings(row.word)}</span>`;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Hapus kata');
+    btn.textContent = '×';
+    btn.addEventListener('click', () => removeHiddenWord(row.id));
+    tag.appendChild(btn);
+    listEl.appendChild(tag);
+  });
+}
+
+function escapeHtmlSettings(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+async function removeHiddenWord(id) {
+  const { ok, data } = await apiFetch(`/moderation/hidden-words/${id}`, { method: 'DELETE' });
+  if (!ok) {
+    showToast(data.error || 'Gagal menghapus kata', 'error');
+    return;
+  }
+  showToast('Kata dihapus', 'success');
+  await loadHiddenWords();
+}
+
+document.getElementById('hidden-word-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('hidden-word-input');
+  const errorEl = document.getElementById('hidden-word-error');
+  if (errorEl) errorEl.textContent = '';
+  const word = (input.value || '').trim();
+  if (!word) {
+    if (errorEl) errorEl.textContent = 'Kata wajib diisi';
+    return;
+  }
+
+  const { ok, data } = await apiFetch('/moderation/hidden-words', {
+    method: 'POST',
+    body: JSON.stringify({ word })
+  });
+
+  if (!ok) {
+    if (errorEl) errorEl.textContent = data.error || 'Gagal menambahkan kata';
+    return;
+  }
+
+  input.value = '';
+  showToast('Kata ditambahkan', 'success');
+  await loadHiddenWords();
+});
+
+// ---------- Blocked Users ----------
+async function loadBlockedUsers() {
+  const listEl = document.getElementById('blocked-list');
+  const emptyEl = document.getElementById('blocked-empty');
+  if (!listEl) return;
+
+  const { ok, data } = await apiFetch('/moderation/blocked');
+  if (!ok) {
+    listEl.innerHTML = '<span class="settings-meta">Gagal memuat daftar blokir</span>';
+    return;
+  }
+
+  const rows = data.data || [];
+  listEl.innerHTML = '';
+  if (rows.length === 0) {
+    if (emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  rows.forEach((row) => {
+    const item = document.createElement('div');
+    item.className = 'blocked-item';
+    const when = row.created_at ? new Date(row.created_at).toLocaleDateString('id-ID') : '';
+    item.innerHTML = `
+      <div class="blocked-item-info">
+        <div class="blocked-item-label">${escapeHtmlSettings(row.label || 'Anonim')}</div>
+        <div class="blocked-item-meta">ID ${escapeHtmlSettings(row.fingerprint || '—')} · ${when}</div>
+      </div>
+    `;
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-ghost btn-sm';
+    btn.textContent = '✅ Unblock';
+    btn.addEventListener('click', () => unblockSender(row.id));
+    item.appendChild(btn);
+    listEl.appendChild(item);
+  });
+}
+
+async function unblockSender(id) {
+  if (!confirm('Buka blokir pengirim ini?')) return;
+  const { ok, data } = await apiFetch(`/moderation/blocked/${id}`, { method: 'DELETE' });
+  if (!ok) {
+    showToast(data.error || 'Gagal membuka blokir', 'error');
+    return;
+  }
+  showToast('Blokir dicabut', 'success');
+  await loadBlockedUsers();
+}
 
 init();

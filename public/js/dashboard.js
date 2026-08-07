@@ -95,6 +95,7 @@ function renderMessages(messages) {
         <button class="msg-action-btn ${msg.is_favorite ? 'active' : ''}" data-action="favorite">⭐ ${msg.is_favorite ? 'Batal Favorit' : 'Favorit'}</button>
         <button class="msg-action-btn" data-action="archive">${msg.is_archived ? '↩️ Batalkan Arsip' : '🗄️ Arsipkan'}</button>
         <button class="msg-action-btn" data-action="report">🚩 Lapor</button>
+        <button class="msg-action-btn" data-action="block">🚫 Block User</button>
         <button class="msg-action-btn danger" data-action="delete">🗑️ Hapus</button>
       </div>
     `;
@@ -108,6 +109,7 @@ function renderMessages(messages) {
     card.querySelector('[data-action="archive"]').addEventListener('click', () => toggleField(msg.id, 'is_archived', !msg.is_archived));
     card.querySelector('[data-action="delete"]').addEventListener('click', () => deleteMessage(msg.id));
     card.querySelector('[data-action="report"]').addEventListener('click', () => openReportModal(msg.id));
+    card.querySelector('[data-action="block"]').addEventListener('click', () => blockSender(msg.id));
 
     listEl.appendChild(card);
   });
@@ -226,5 +228,19 @@ document.getElementById('report-confirm').addEventListener('click', async () => 
   closeReportModal();
   showToast(ok ? 'Laporan terkirim, terima kasih' : (data.error || 'Gagal mengirim laporan'), ok ? 'success' : 'error');
 });
+
+
+async function blockSender(messageId) {
+  if (!confirm('Blokir pengirim pesan ini? Mereka tidak bisa mengirim pesan lagi ke kamu.')) return;
+  const { ok, data } = await apiFetch('/moderation/block', {
+    method: 'POST',
+    body: JSON.stringify({ messageId })
+  });
+  if (!ok) {
+    showToast(data.error || 'Gagal memblokir pengirim', 'error');
+    return;
+  }
+  showToast(data.message || 'Pengirim diblokir', 'success');
+}
 
 init();
