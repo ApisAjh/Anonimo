@@ -137,7 +137,10 @@
       if (!username) {
         document.getElementById('profile-skeleton').style.display = 'none';
         document.getElementById('profile-not-found').style.display = 'block';
-        return;
+        bannerEl.removeAttribute('style');
+    avatarEl.removeAttribute('style');
+    avatarEl.innerHTML='👤';
+    return;
       }
 
       const { ok, data } = await apiFetch(`/profile/${encodeURIComponent(username)}`);
@@ -182,8 +185,10 @@
         avatarEl.textContent = '';
 
         // Inline putih absolut (tidak bisa ditimpa onload foto)
-        bannerEl.setAttribute('style', 'background:#ffffff !important; background-image:none !important; box-shadow:none !important; border:none !important; filter:none !important;');
-        avatarEl.setAttribute('style', 'background:#ffffff !important; background-image:none !important; box-shadow:none !important; border:3px solid #e5e5e5 !important; color:transparent !important; filter:none !important;');
+        // removed banner style
+//bannerEl.setAttribute('style', 'background:#ffffff !important; background-image:none !important; box-shadow:none !important; border:none !important; filter:none !important;');
+        // removed avatar style
+//avatarEl.setAttribute('style', 'background:#ffffff !important; background-image:none !important; box-shadow:none !important; border:3px solid #e5e5e5 !important; color:transparent !important; filter:none !important;');
         return; // penting: jangan lanjut load tema/foto
       }
 
