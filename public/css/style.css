@@ -381,11 +381,33 @@ footer {
 .btn-primary.theme-gold { background: linear-gradient(135deg, #f59e0b, #b45309); }
 
 /* ---------- Tema Premium (midnight/aurora/gold): shimmer + glow, beda dari tema gratis ---------- */
-.profile-banner.theme-midnight, .profile-banner.theme-aurora, .profile-banner.theme-gold,
-.profile-avatar.theme-midnight, .profile-avatar.theme-aurora, .profile-avatar.theme-gold,
-.btn-primary.theme-midnight, .btn-primary.theme-aurora, .btn-primary.theme-gold {
+.profile-banner.theme-midnight:not(.has-photo),
+.profile-banner.theme-aurora:not(.has-photo),
+.profile-banner.theme-gold:not(.has-photo),
+.profile-avatar.theme-midnight,
+.profile-avatar.theme-aurora,
+.profile-avatar.theme-gold,
+.btn-primary.theme-midnight,
+.btn-primary.theme-aurora,
+.btn-primary.theme-gold {
   background-size: 220% 220%;
   animation: theme-shimmer 6s ease infinite;
+}
+.profile-banner.has-photo {
+  background-size: cover !important;
+  background-position: center !important;
+  animation: none;
+}
+.profile-banner .banner-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: inherit;
+  z-index: 0;
+  display: block;
 }
 .profile-avatar.theme-midnight, .profile-avatar.theme-aurora, .profile-avatar.theme-gold {
   box-shadow: 0 0 0 3px var(--bg-dark), 0 0 24px rgba(250, 204, 21, 0.4);

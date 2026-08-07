@@ -23,6 +23,8 @@
 }
 .preview-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .preview-banner {
+  position: relative;
+  overflow: hidden;
   width: 100%; height: 84px;
   border-radius: var(--radius-sm);
   background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
@@ -116,9 +118,10 @@
 .preview-avatar.theme-midnight,
 .preview-avatar.theme-aurora,
 .preview-avatar.theme-gold,
-.preview-banner.theme-midnight,
-.preview-banner.theme-aurora,
-.preview-banner.theme-gold {
+/* Shimmer gradient hanya jika TIDAK ada foto banner */
+.preview-banner.theme-midnight:not(.has-photo),
+.preview-banner.theme-aurora:not(.has-photo),
+.preview-banner.theme-gold:not(.has-photo) {
   background-size: 220% 220%;
   animation: theme-shimmer 6s ease infinite;
 }
@@ -126,6 +129,50 @@
 .preview-avatar.theme-aurora,
 .preview-avatar.theme-gold {
   box-shadow: 0 0 0 3px var(--bg-dark, #0b0a14), 0 0 18px rgba(250, 204, 21, 0.35);
+}
+
+
+/* Foto banner: proporsional, tidak gepeng */
+.preview-banner .banner-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: inherit;
+  z-index: 0;
+  display: block;
+}
+.preview-banner.has-photo {
+  background-size: cover !important;
+  background-position: center !important;
+  animation: none;
+}
+
+/* Kilauan cahaya putih lewat — hanya banner tema Premium */
+.preview-banner.theme-midnight,
+.preview-banner.theme-aurora,
+.preview-banner.theme-gold {
+  overflow: hidden;
+}
+.preview-banner.theme-midnight::after,
+.preview-banner.theme-aurora::after,
+.preview-banner.theme-gold::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    115deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 60%
+  );
+  background-size: 220% 100%;
+  animation: theme-sweep 3.2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
 }
 .preview-banner {
   transition: background 0.35s ease, box-shadow 0.35s ease;
