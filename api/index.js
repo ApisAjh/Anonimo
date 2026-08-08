@@ -22,6 +22,12 @@ const app = express();
 
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 
+// Vercel (dan proxy sejenis) meneruskan IP asli via header X-Forwarded-For.
+// Tanpa ini, Express mengabaikan header tsb dan req.ip jadi alamat proxy internal
+// yang SAMA untuk banyak/semua pengunjung — bikin rate-limit (5 pesan/menit)
+// bocor jadi limit gabungan untuk semua orang, bukan per-pengunjung.
+app.set('trust proxy', 1);
+
 // ---- Security & performance middleware ----
 app.use(helmet({
   contentSecurityPolicy: {
