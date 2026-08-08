@@ -86,23 +86,23 @@
     const username = window.location.pathname.split('/u/')[1]?.split('/')[0];
 
     const emojiRow = document.getElementById('emoji-row');
-    const contentEl = document.getElementById('content');
+    const messageInput = document.getElementById('content');
     EMOJIS.forEach((emoji) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'emoji-btn';
       btn.textContent = emoji;
       btn.addEventListener('click', () => {
-        if (contentEl.value.length < 500) {
-          contentEl.value += emoji;
-          contentEl.dispatchEvent(new Event('input'));
+        if (messageInput.value.length < 500) {
+          messageInput.value += emoji;
+          messageInput.dispatchEvent(new Event('input'));
         }
       });
       emojiRow.appendChild(btn);
     });
 
-    contentEl.addEventListener('input', () => {
-      document.getElementById('char-count').textContent = contentEl.value.length;
+    messageInput.addEventListener('input', () => {
+      document.getElementById('char-count').textContent = messageInput.value.length;
     });
 
     document.getElementById('image').addEventListener('change', (e) => {
@@ -251,7 +251,7 @@
       const submitBtn = document.getElementById('submit-btn');
       errorEl.textContent = '';
 
-      const content = contentEl.value.trim();
+      const content = messageInput.value.trim();
       if (!content) {
         errorEl.textContent = 'Tulis pesan terlebih dahulu.';
         return;
